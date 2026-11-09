@@ -120,7 +120,7 @@ h1.pl{animation:pl 2.4s ease-in-out infinite}
 .p h4{margin:0;min-width:0;font-weight:600;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .t{display:flex;align-items:center;gap:10px;font-size:13px;opacity:.85;font-variant-numeric:tabular-nums}
 .t span{min-width:2.4em}.t span:last-child{text-align:right}
-input.pg{--p:0%;flex:1;min-width:0;height:16px;margin:0;background:transparent;cursor:pointer;-webkit-appearance:none;appearance:none}
+input.pg{--p:0%;flex:1;min-width:0;height:16px;margin:0;color:inherit;background:transparent;cursor:pointer;-webkit-appearance:none;appearance:none}
 input.pg::-webkit-slider-runnable-track{height:3px;border-radius:3px;background:linear-gradient(90deg,currentColor var(--p),${rgba(boxTx, 0.25)} var(--p))}
 input.pg::-webkit-slider-thumb{-webkit-appearance:none;width:11px;height:11px;margin-top:-4px;border-radius:50%;background:currentColor}
 input.pg::-moz-range-track{height:3px;border-radius:3px;background:${rgba(boxTx, 0.25)}}
