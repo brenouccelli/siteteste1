@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
+<script>(function(){var p=location.pathname;if(/\.html$/.test(p)){p=p.replace(/(^|\/)index\.html$/,"$1").replace(/\.html$/,"");history.replaceState(null,"",p+location.search+location.hash)}})()</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Brenkz · Crie sua página de links</title>
 <meta name="description" content="Crie uma página de links moderna, com vídeo de fundo, música e link próprio, e veja os perfis já criados.">
@@ -86,14 +87,14 @@ footer{padding:36px 0 48px;color:var(--mut);font-size:14px;text-align:center;bor
 
 <header>
   <div class="wrap nav">
-    <a class="logo" href="index.html">meu<b>perfil</b></a>
+    <a class="logo" href="./">meu<b>perfil</b></a>
     <nav class="links" aria-label="Principal">
       <a href="#perfis">Perfis</a>
       <a href="#recursos">Recursos</a>
       <a href="#como">Como funciona</a>
       <a href="#faq">Perguntas</a>
     </nav>
-    <a class="btn pri" id="navbtn" href="conta.html">Entrar</a>
+    <a class="btn pri" id="navbtn" href="conta">Entrar</a>
   </div>
 </header>
 
@@ -102,7 +103,7 @@ footer{padding:36px 0 48px;color:var(--mut);font-size:14px;text-align:center;bor
     <h1>Tudo o que você quer, bem aqui.</h1>
     <p>Crie uma página de links com vídeo de fundo, música e um endereço só seu. Sem escrever código.</p>
     <div class="cta">
-      <a class="btn pri" href="conta.html">Entrar com o Discord</a>
+      <a class="btn pri" href="conta">Entrar com o Discord</a>
       <a class="btn" href="#perfis">Ver perfis</a>
     </div>
   </div>
@@ -125,7 +126,7 @@ footer{padding:36px 0 48px;color:var(--mut);font-size:14px;text-align:center;bor
         <div><h3>Links e redes</h3><p>YouTube, Twitch, Discord, Instagram, TikTok, GitHub ou qualquer site.</p></div>
         <div><h3>Efeitos</h3><p>Neve, estrelas, brilho e arco-íris no nome, mais desfoque e opacidade do cartão.</p></div>
         <div><h3>Cores e cursor</h3><p>Escolha as cores de destaque, do texto e do cartão, e um cursor personalizado.</p></div>
-        <div><h3>Endereço próprio</h3><p>Sua página fica em <b>brenkz.com.br/seu-nome.html</b>.</p></div>
+        <div><h3>Endereço próprio</h3><p>Sua página fica em <b>brenkz.com.br/seu-nome</b>.</p></div>
       </div>
     </div>
   </section>
@@ -155,7 +156,7 @@ footer{padding:36px 0 48px;color:var(--mut);font-size:14px;text-align:center;bor
   </section>
 </main>
 
-<footer><div class="wrap">© 2026 Brenkz · <a href="brenkz.html">Conheça o meu perfil</a></div></footer>
+<footer><div class="wrap">© 2026 Brenkz · <a href="brenkz">Conheça o meu perfil</a></div></footer>
 
 <script>
 (function(){
@@ -165,14 +166,14 @@ var API="https://painel-brenkz.bre-uccelli.workers.dev";
 var t=localStorage.getItem("conta-token");
 if(t)fetch(API+"/me",{headers:{Authorization:"Bearer "+t}}).then(function(r){return r.ok?r.json():null}).then(function(m){
   if(!m)return;var b=document.getElementById("navbtn");
-  b.textContent=m.discord?"Meu painel":"Conectar Discord";b.href=m.discord?"painel.html":"conta.html"}).catch(function(){});
+  b.textContent=m.discord?"Meu painel":"Conectar Discord";b.href=m.discord?"painel":"conta"}).catch(function(){});
 
 /* lista de perfis */
 var box=document.getElementById("lista"),cnt=document.getElementById("cnt");
-var base=[{u:"brenkz",n:"Brenkz",d:"Vídeos sobre o que eu gosto de fazer.",a:"",href:"brenkz.html"}];
+var base=[{u:"brenkz",n:"Brenkz",d:"Vídeos sobre o que eu gosto de fazer.",a:"",href:"brenkz"}];
 var AV=/^(assets\/perfis\/[a-z0-9-]+\/avatar\.(png|jpg|webp|gif)|https:\/\/cdn\.discordapp\.com\/avatars\/[0-9]+\/[A-Za-z0-9_]+\.png\?size=128)$/;
 function card(p){
-  var a=document.createElement("a");a.className="pf";a.href=p.href||(encodeURIComponent(p.u)+".html");
+  var a=document.createElement("a");a.className="pf";a.href=p.href||(encodeURIComponent(p.u));
   var av=document.createElement("span");av.className="av";
   if(p.a&&AV.test(p.a)){var im=document.createElement("img");im.src=p.a;im.alt="";im.loading="lazy";av.appendChild(im)}
   else av.textContent=String(p.n||p.u).charAt(0).toUpperCase();
