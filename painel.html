@@ -188,7 +188,8 @@ main>section{padding:28px 32px 70px;max-width:1200px}
   <div class="ttl"><small>Painel</small><h1 id="vt">Conta</h1></div>
   <span class="pill dot" id="tv">0 visualizações</span>
   <button class="btn" id="prev"><i data-i="eye"></i>Pré-visualizar</button>
-  <button class="btn pri" id="open">Minha página</button>
+  <button class="btn" id="open"><i data-i="link"></i>Minha página</button>
+  <button class="btn pri" id="save">Salvar alterações</button>
   <div class="me"><i id="mi">?</i><div><b id="mn">…</b><small id="msub"></small></div></div>
 </header>
 <!-- CONTA -->
@@ -575,6 +576,7 @@ $$('.nav').forEach(n=>n.addEventListener('click',()=>go(n.dataset.v)));
 /* conta */
 const shown=()=>S.user||(ACC?ACC.user:'');
 function paint(){
+  updSave();
   const nm=shown()||'…',A=ACC&&ACC.discord;
   $('#mn').textContent=A?A.name:nm;$('#msub').textContent=ACC?'@'+ACC.user:'';
   const mi=$('#mi');mi.textContent=A&&A.avatar?'':nm[0].toUpperCase();mi.style.backgroundImage=A&&A.avatar?'url("'+A.avatar+'")':'';
@@ -607,10 +609,10 @@ $('#as').addEventListener('click',()=>{
   const v=$('#an').value.trim().toLowerCase();
   if(!SLUG.test(v)||RES.includes(v))return toast('Use de 3 a 24 letras minúsculas, números ou hífen.');
   S.slug=ACC&&v===ACC.user?'':v;$('#af').classList.remove('on');save();
-  toast(S.slug?'Endereço salvo. Ele passa a valer quando você clicar em “Minha página”.':'Endereço mantido.');
+  toast(S.slug?'Endereço salvo. Ele passa a valer quando você clicar em “Salvar alterações”.':'Endereço mantido.');
 });
 $('#an').addEventListener('keydown',e=>{if(e.key==='Enter')$('#as').click()});
-function viewPage(){if(PUB)window.open(PUB,'_blank','noopener');else toast('Publique a sua página primeiro, em “Minha página”.')}
+function viewPage(){if(PUB)window.open(PUB,'_blank','noopener');else toast('Salve as alterações primeiro para publicar a sua página.')}
 $('#rv').addEventListener('click',viewPage);
 $('#aV').addEventListener('click',viewPage);$('#aP').addEventListener('click',()=>go('pers'));$('#aL').addEventListener('click',()=>go('links'));
 /* ficha rápida e status */
@@ -644,26 +646,38 @@ $('#pfx').addEventListener('click',closePrev);
 addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#pf').hidden)closePrev()});
 
 const b64=f=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(f)});
-$('#open').addEventListener('click',async()=>{
+/* salvar: grava tudo no GitHub num único commit e continua no painel */
+const sig=()=>JSON.stringify([cfgOf(true),wantSlug(),Object.keys(F).sort().map(k=>[k,F[k].name,F[k].size,F[k].lastModified])]);
+const dirty=()=>{try{return sig()!==localStorage.getItem('painel-pubsig')}catch(e){return true}};
+function updSave(){
+  const b=$('#save');if(!b||b.dataset.busy)return;
+  const d=dirty();b.textContent=d?'Salvar alterações':'Tudo salvo';b.classList.toggle('pri',d);
+}
+addEventListener('beforeunload',e=>{if(ACC&&dirty()){e.preventDefault();e.returnValue=''}});
+$('#open').addEventListener('click',viewPage);
+$('#save').addEventListener('click',async()=>{
   if(!ACC)return toast('Aguarde a conta carregar e tente de novo.');
-  const btn=$('#open');btn.disabled=true;btn.textContent='Publicando…';
+  const btn=$('#save');if(btn.dataset.busy)return;
+  btn.dataset.busy='1';btn.disabled=true;btn.textContent='Salvando…';
+  const s0=sig();
   try{
     const media={};let total=0;
     for(const k in F){total+=F[k].size;media[k]={name:F[k].name,type:F[k].type,data:await b64(F[k])}}
     if(total>20*1024*1024)throw new Error('Os arquivos passam de 20 MB no total.');
     const r=await fetch(API+'/publish',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+TK},body:JSON.stringify({cfg:cfgOf(true),media,slug:wantSlug()})});
     const j=await r.json().catch(()=>({}));
-    if(!r.ok)throw new Error(j.erro||'Falha ao publicar.');
+    if(!r.ok)throw new Error(j.erro||'Falha ao salvar.');
     PUB=j.url;localStorage.setItem('painel-pub',PUB);
     if(j.token){localStorage.setItem('conta-token',j.token);ACC.user=wantSlug();S.slug='';save()}
-    btn.textContent='Aguardando o GitHub…';
-    for(let i=0;i<45;i++){
+    try{localStorage.setItem('painel-pubsig',j.token?sig():s0)}catch(e){}
+    toast('Alterações salvas! A página atualiza em 1 a 2 minutos.');
+    (async()=>{for(let i=0;i<45;i++){
       const ok=await fetch(j.url+'?t='+Date.now(),{cache:'no-store'}).then(x=>x.ok?x.text():'').then(t=>t.includes(j.v)).catch(()=>false);
-      if(ok)break;await new Promise(z=>setTimeout(z,4000));
-    }
-    location.href=j.url;
-  }catch(e){toast(e.message||'Não foi possível publicar.')}
-  btn.disabled=false;btn.textContent='Minha página';
+      if(ok)return toast('Sua página já está no ar com as alterações.');
+      await new Promise(z=>setTimeout(z,4000));
+    }})();
+  }catch(e){toast(e.message||'Não foi possível salvar.')}
+  delete btn.dataset.busy;btn.disabled=false;updSave();paint();
 });
 
 /* Twitch */
@@ -679,7 +693,7 @@ $('#rt').addEventListener('click',()=>twApi('/twitch/start').then(j=>{location.h
 $('#rtx').addEventListener('click',()=>twApi('/twitch/unlink').then(()=>{ACC.twitch=null;twPaint();toast('Twitch desconectada. Publique de novo para tirar o aviso da página.')}).catch(e=>toast(e.message)));
 {const tq=new URLSearchParams(location.search).get('twitch');
  if(tq){history.replaceState(null,'',location.pathname);
-  setTimeout(()=>toast(({ok:'Twitch conectada! Clique em “Minha página” para publicar o aviso de AO VIVO.',cancelado:'Você cancelou a conexão com a Twitch.',state:'A conexão expirou. Tente de novo.',token:'A Twitch recusou a conexão (client secret ou redirect errado).',perfil:'A Twitch não devolveu o seu perfil.',conta:'Conta não encontrada. Entre de novo.'})[tq]||'Não foi possível conectar a Twitch.'),400)}}
+  setTimeout(()=>toast(({ok:'Twitch conectada! Clique em “Salvar alterações” para publicar o aviso de AO VIVO.',cancelado:'Você cancelou a conexão com a Twitch.',state:'A conexão expirou. Tente de novo.',token:'A Twitch recusou a conexão (client secret ou redirect errado).',perfil:'A Twitch não devolveu o seu perfil.',conta:'Conta não encontrada. Entre de novo.'})[tq]||'Não foi possível conectar a Twitch.'),400)}}
 
 /* conta: exige login e Discord conectado */
 const root=document.documentElement;root.style.visibility='hidden';
