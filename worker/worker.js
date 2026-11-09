@@ -1,6 +1,7 @@
 // Cloudflare Worker: recebe o perfil de uma pessoa, gera <nome>.html na raiz do repositório (mídias em assets/perfis/<nome>/) e grava no GitHub.
 // Variáveis: GITHUB_TOKEN (secreta), REPO ("dono/LIVE2"), SITE e ORIGIN ("https://brenkz.com.br"), BRANCH (opcional),
-// SESSION_SECRET (secreta, texto longo e aleatório), DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET (secreta).
+// SESSION_SECRET (secreta, texto longo e aleatório), DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET (secreta),
+// TWITCH_CLIENT_ID e TWITCH_CLIENT_SECRET (secreta) para o aviso de "AO VIVO".
 // A conta é criada ao entrar com o Discord (sem senha).
 // Binding KV chamado USERS (guarda contas e vínculos com o Discord).
 
@@ -47,6 +48,7 @@ function renderPage(c, m, slug, v, api, o) {
   const title = String(c.title || name).slice(0, 60);
   const fx = c.fx === "neve" || c.fx === "estrelas" ? c.fx : "none";
   const brand = { YouTube: "#ff5252", Twitch: "#a970ff", Discord: "#7f8bff", Instagram: "#ff5fa2", TikTok: "#25f4ee", GitHub: "#ffffff" };
+  const tw = /^[a-z0-9_]{3,25}$/.test(c.tw || "") ? c.tw : "";
   const ICO = {
     YouTube: "M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8zM9.6 15.6V8.4l6.2 3.6-6.2 3.6z",
     Twitch: "M11.6 11.2h1.8V6.4h-1.8v4.8zm4.9 0h1.8V6.4h-1.8v4.8zM6 0 1.7 4.3v15.4h5.2V24h2.9l4.3-4.3h4.3L22.3 14V0H6zm14.6 12.9-3.4 3.4h-5.4l-2.9 2.9v-2.9H6.1V1.7h14.5v11.2z",
@@ -62,7 +64,7 @@ function renderPage(c, m, slug, v, api, o) {
       const p = String(l.p).slice(0, 20);
       const k = c.mono === false ? (brand[p] || ac) : ic;
       const d = ICO[p] || ICO.Site;
-      return `<a href="${esc(l.u)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(p)}" title="${esc(p)}" style="--k:${k};--g:${brand[p] || ac}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/></svg></a>`;
+      return `<a href="${esc(l.u)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(p)}" title="${esc(p)}" data-p="${esc(p)}" style="--k:${k};--g:${brand[p] || ac}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/></svg></a>`;
     }).join("");
   const dav = /^https:\/\/cdn\.discordapp\.com\/avatars\/[0-9]+\/[A-Za-z0-9_]+\.png\?size=128$/.test(c.dav || "") ? c.dav : "";
   const av = dav || url(m.avatar), bg = url(m.bg), cur = url(m.cursor), aud = url(m.audio);
@@ -99,6 +101,11 @@ h1.pl{animation:pl 2.4s ease-in-out infinite}
 .l a:hover svg,.l a:focus-visible svg{filter:drop-shadow(0 0 6px var(--g)) drop-shadow(0 0 18px var(--g))}
 .vw{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;font-weight:500}
 .vw[hidden]{display:none}
+.lv{display:none;margin:12px auto 0;width:max-content;align-items:center;gap:8px;padding:4px 12px;border-radius:999px;background:rgba(229,37,61,.22);border:1px solid rgba(229,37,61,.6);color:#fff;font-size:13px;font-weight:600;text-decoration:none}
+.lv.on{display:flex}
+.lv i{width:8px;height:8px;border-radius:50%;background:#e5253d;animation:pl 1.6s infinite}
+.l a{position:relative}
+.l a.live::after{content:"";position:absolute;top:2px;right:2px;width:10px;height:10px;border-radius:50%;background:#e5253d;border:2px solid ${cd};animation:pl 1.6s infinite}
 .vw svg{width:26px;height:26px;fill:currentColor}
 .vw.gl{text-shadow:0 0 10px currentColor,0 0 22px ${rgba(boxTx, 0.5)}}
 .vw.gl svg{filter:drop-shadow(0 0 5px currentColor) drop-shadow(0 0 14px ${rgba(boxTx, 0.6)})}
@@ -114,6 +121,7 @@ ${isVid && bg ? `<video src="${bg}" autoplay muted loop playsinline></video>` : 
 <main>
 <section class="c"><div class="av">${av ? `<img src="${esc(av)}" alt="">` : esc(name[0].toUpperCase())}</div>
 <h1 class="${nameCls.trim()}">${esc(name)}</h1>
+${tw && !o.preview ? `<a class="lv" id="lv" href="https://www.twitch.tv/${tw}" target="_blank" rel="noopener noreferrer"><i></i>AO VIVO AGORA</a>` : ""}
 ${c.desc ? `<p>${esc(String(c.desc).slice(0, 120))}</p>` : ""}${c.loc ? `<small>📍 ${esc(String(c.loc).slice(0, 40))}</small>` : ""}
 ${links ? `<div class="l${gl.l ? " gl" : ""}">${links}</div>` : ""}
 ${counter ? `<div class="vw${gl.v !== false ? " gl" : ""}" id="vw"${o.preview ? "" : " hidden"}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg><span id="vn">0</span></div>` : ""}</section>
@@ -126,6 +134,10 @@ fetch(${q(api)}+"/view",{method:"POST",headers:{"Content-Type":"application/json
 .then(function(r){return r.json()}).then(function(j){if(typeof j.n!=="number")return;
 document.getElementById("vn").textContent=j.n.toLocaleString("pt-BR");document.getElementById("vw").hidden=false;
 try{localStorage.setItem(vk,"1")}catch(e){}}).catch(function(){});` : ""}
+${tw && api && !o.preview ? `function lv(){fetch(${q(api)}+"/live?p="+${q(slug)}).then(function(r){return r.json()}).then(function(j){var on=j.live===true;
+document.getElementById("lv").classList.toggle("on",on);
+document.querySelectorAll('.l a[data-p="Twitch"]').forEach(function(a){a.classList.toggle("live",on)})}).catch(function(){})}
+lv();setInterval(lv,60000);` : ""}
 var FX=${q(fx)};
 if(FX!=="none"){var cv=document.getElementById("cv"),g=cv.getContext("2d");cv.width=innerWidth;cv.height=innerHeight;
 var P=[];for(var i=0;i<(FX==="neve"?90:70);i++)P.push({x:Math.random()*cv.width,y:Math.random()*cv.height,r:Math.random()*2.2+.6,s:Math.random()+.4,p:Math.random()*6});
@@ -174,6 +186,30 @@ async function freeSlug(env, d) {
     if (USER_RE.test(slug) && !RESERVED.includes(slug) && !(await env.USERS.get("u:" + slug))) return slug;
   }
   return `user-${String(d.id).slice(-8)}`;
+}
+
+async function twitchLive(env, id) {
+  const hit = await env.USERS.get("tl:" + id);
+  if (hit !== null) return hit === "1";
+  let app = JSON.parse((await env.USERS.get("tw:app")) || "null");
+  if (!app || app.exp < Date.now()) {
+    const r = await fetch("https://id.twitch.tv/oauth2/token", {
+      method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ client_id: env.TWITCH_CLIENT_ID, client_secret: env.TWITCH_CLIENT_SECRET, grant_type: "client_credentials" })
+    });
+    if (!r.ok) { console.log("twitch/app token falhou", r.status, await r.text().catch(() => "")); return false; }
+    const j = await r.json();
+    app = { t: j.access_token, exp: Date.now() + (j.expires_in - 600) * 1000 };
+    await env.USERS.put("tw:app", JSON.stringify(app));
+  }
+  const r = await fetch(`https://api.twitch.tv/helix/streams?user_id=${encodeURIComponent(id)}`, {
+    headers: { "Client-Id": env.TWITCH_CLIENT_ID, Authorization: `Bearer ${app.t}` }
+  });
+  if (r.status === 401) { await env.USERS.delete("tw:app"); return false; }
+  if (!r.ok) { console.log("twitch/streams falhou", r.status); return false; }
+  const live = ((await r.json()).data || []).some(x => x.type === "live");
+  await env.USERS.put("tl:" + id, live ? "1" : "0", { expirationTtl: 60 });
+  return live;
 }
 
 export default {
@@ -248,6 +284,34 @@ export default {
       return go(`${env.SITE}/conta.html#t=${token}&n=${st.nn}`);
     }
 
+    // ----- Conectar a Twitch (mostra "AO VIVO" na página) -----
+    if (req.method === "GET" && path === "/twitch/callback") {
+      const back = q => go(`${env.SITE}/painel.html?twitch=${q}`);
+      if (url.searchParams.get("error")) return back("cancelado");
+      const st = await verify(env, url.searchParams.get("state") || "");
+      const code = url.searchParams.get("code");
+      if (!st || st.n !== "t" || !code) return back("state");
+      const tk = await fetch("https://id.twitch.tv/oauth2/token", {
+        method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          client_id: env.TWITCH_CLIENT_ID, client_secret: env.TWITCH_CLIENT_SECRET,
+          grant_type: "authorization_code", code, redirect_uri: `${url.origin}/twitch/callback`
+        })
+      });
+      if (!tk.ok) { console.log("twitch/token falhou", tk.status, await tk.text().catch(() => "")); return back("token"); }
+      const { access_token } = await tk.json();
+      const me = await fetch("https://api.twitch.tv/helix/users", {
+        headers: { Authorization: `Bearer ${access_token}`, "Client-Id": env.TWITCH_CLIENT_ID }
+      });
+      const t = me.ok ? ((await me.json()).data || [])[0] : null;
+      if (!t) { console.log("twitch/users falhou", me.status); return back("perfil"); }
+      const rec = await getUser(st.u);
+      if (!rec) return back("conta");
+      rec.twitch = { id: t.id, login: t.login, name: t.display_name || t.login };
+      await env.USERS.put("u:" + st.u, JSON.stringify(rec));
+      return back("ok");
+    }
+
     // ----- API chamada pelo site -----
     if (req.method === "OPTIONS") return new Response(null, { headers: cors });
     if (req.headers.get("Origin") !== env.ORIGIN) return out({ erro: "Origem não permitida." }, 403);
@@ -269,7 +333,14 @@ export default {
       const s = await session();
       const rec = s && await getUser(s.u);
       if (!rec) return out({ erro: "Sessão inválida." }, 401);
-      return out({ user: s.u, discord: rec.discord || null });
+      return out({ user: s.u, discord: rec.discord || null, twitch: rec.twitch || null });
+    }
+
+    if (req.method === "GET" && path === "/live") {
+      const p = url.searchParams.get("p") || "";
+      const rec = /^[a-z0-9-]{1,24}$/.test(p) ? await getUser(p) : null;
+      if (!rec || !rec.twitch || !env.TWITCH_CLIENT_ID) return out({ live: false });
+      return out({ live: await twitchLive(env, rec.twitch.id) });
     }
 
     if (req.method !== "POST") return out({ erro: "Método não permitido." }, 405);
@@ -283,6 +354,23 @@ export default {
       let n = parseInt((await env.USERS.get("v:" + p)) || "0", 10) || 0;
       if (body.inc === true) { n++; await env.USERS.put("v:" + p, String(n)); }
       return out({ n });
+    }
+    if (path === "/twitch/start" || path === "/twitch/unlink") {
+      const s = await session();
+      const rec = s && await getUser(s.u);
+      if (!rec) return out({ erro: "Entre na sua conta de novo." }, 401);
+      if (path === "/twitch/unlink") {
+        delete rec.twitch;
+        await env.USERS.put("u:" + s.u, JSON.stringify(rec));
+        return out({ ok: true });
+      }
+      if (!env.TWITCH_CLIENT_ID || !env.TWITCH_CLIENT_SECRET) return out({ erro: "O servidor está sem TWITCH_CLIENT_ID ou TWITCH_CLIENT_SECRET." }, 500);
+      const state = await sign(env, { n: "t", u: s.u, exp: Date.now() + 10 * 60 * 1000 });
+      const q = new URLSearchParams({
+        client_id: env.TWITCH_CLIENT_ID, response_type: "code", scope: "", force_verify: "true",
+        redirect_uri: `${url.origin}/twitch/callback`, state
+      });
+      return out({ url: `https://id.twitch.tv/oauth2/authorize?${q}` });
     }
     if (path !== "/publish") return out({ erro: "Rota não encontrada." }, 404);
 
@@ -298,6 +386,7 @@ export default {
     if (renaming && (await env.USERS.get("u:" + slug))) return out({ erro: "Este endereço já está em uso." }, 409);
     const cfg = body.cfg && typeof body.cfg === "object" ? body.cfg : {};
     cfg.dav = cfg.dav === true && acct.discord.avatar ? acct.discord.avatar : "";
+    cfg.tw = acct.twitch ? acct.twitch.login : "";
 
     const gh = (p, init = {}) => fetch(`https://api.github.com/repos/${env.REPO}/contents/${p}`, {
       ...init,
