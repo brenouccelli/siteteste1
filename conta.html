@@ -8,45 +8,57 @@
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
-:root{color-scheme:dark;--bg:#0b0712;--card:#150f20;--line:#2d2240;--ink:#f4f1fa;--mut:#a69fb8;--ac:#8b5cf6;--acd:#3b2470;--dc:#5865f2;--err:#ff8a9a;--font:"Outfit",system-ui,sans-serif}
+:root{color-scheme:dark;--bg:#0a0f19;--card:#0f1623;--row:#121a28;--line:#1c2535;--line2:#283347;--ink:#e7ecf5;--mut:#8592a8;--dim:#5d6a80;--ac:#4f74b3;--ok:#3ecf8e;--dc:#5865f2;--err:#ff8a9a;--font:"Inter",system-ui,sans-serif;--mono:"JetBrains Mono",ui-monospace,monospace}
 *{box-sizing:border-box}
-body{margin:0;min-height:100vh;background:radial-gradient(800px 480px at 50% -60px,#3b1d70,transparent 70%),var(--bg);color:var(--ink);font:16px/1.5 var(--font);display:flex;flex-direction:column;align-items:center;padding:28px 16px}
+body{margin:0;min-height:100vh;background:radial-gradient(900px 520px at 50% -120px,#16233b,transparent 70%),var(--bg);color:var(--ink);font:14px/1.5 var(--font);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 16px}
 a{color:inherit}
 :focus-visible{outline:2px solid var(--ac);outline-offset:2px}
-.logo{font-size:24px;font-weight:600;text-decoration:none;margin-bottom:28px}
-.logo b{color:var(--ac)}
-.box{width:min(420px,100%);background:var(--card);border:1px solid var(--line);border-radius:22px;padding:30px 28px}
-h1{font-size:24px;font-weight:600;margin:0 0 8px}
-p.sub{color:var(--mut);margin:0 0 24px}
-.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:14px 18px;border-radius:14px;border:1px solid var(--ac);background:var(--acd);color:var(--ink);font:inherit;font-weight:500;cursor:pointer;text-decoration:none}
-.btn:hover{background:#4a2c8a}
+.brand{display:flex;align-items:center;gap:11px;text-decoration:none;margin-bottom:24px}
+.brand .mk{width:40px;height:40px;border-radius:50%;border:1px solid var(--line2);background:radial-gradient(circle at 30% 30%,#2b3d60,#101826);display:grid;place-items:center;font-weight:700;font-size:17px}
+.brand b{display:block;font-size:16px;font-weight:600;line-height:1.2}
+.brand small{display:block;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut);margin-top:2px}
+.box{width:min(420px,100%);background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.box section{padding:26px 26px 4px}
+.kick{display:block;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--mut);font-weight:600;margin-bottom:4px}
+h1{font-size:21px;font-weight:600;margin:0 0 8px;letter-spacing:-.01em}
+p.sub{color:var(--mut);margin:0 0 22px}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:44px;padding:0 18px;border-radius:8px;border:1px solid var(--ac);background:var(--ac);color:#fff;font:inherit;font-weight:500;cursor:pointer;text-decoration:none}
+.btn:hover{background:#5b82c4;border-color:#5b82c4}
 .btn:disabled{opacity:.6;cursor:wait}
 .btn.dc{background:var(--dc);border-color:var(--dc)}
-.btn.dc:hover{background:#4752c4}
-.btn.ghost{background:none;border-color:var(--line);margin-top:10px}
-.btn svg{width:22px;height:22px;fill:currentColor}
-.note{color:var(--mut);font-size:13.5px;margin:18px 0 0;text-align:center}
-.msg{min-height:22px;margin:14px 0 0;font-size:14px;color:var(--err);text-align:center}
-.me{display:flex;align-items:center;gap:12px;padding:14px;border:1px solid var(--line);border-radius:14px;margin-bottom:18px}
-.me img,.me i{width:48px;height:48px;border-radius:50%;background:#33303c;display:grid;place-items:center;font-style:normal;font-weight:600;flex:none}
-.me small{display:block;color:var(--mut)}
+.btn.dc:hover{background:#4752c4;border-color:#4752c4}
+.btn.ghost{background:none;border-color:var(--line2);color:var(--ink);margin-top:10px}
+.btn.ghost:hover{background:var(--row)}
+.btn svg{width:20px;height:20px;fill:currentColor}
+.note{display:flex;gap:10px;align-items:flex-start;color:var(--mut);font-size:12.5px;margin:18px 0 0;padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:var(--row)}
+.note svg{width:16px;height:16px;fill:var(--ok);flex:none;margin-top:1px}
+.msg{min-height:20px;margin:0;padding:12px 26px 0;font-size:13px;color:var(--err);text-align:center}
+.msg:empty{padding-top:0}
+.me{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--row);margin-bottom:16px}
+.me img,.me i{width:40px;height:40px;border-radius:50%;background:#1d2738;display:grid;place-items:center;font-style:normal;font-weight:600;flex:none}
+.me b{display:block}.me small{display:block;color:var(--mut);font:500 12px var(--mono)}
+.foot{display:flex;justify-content:space-between;gap:10px;margin-top:22px;padding:12px 26px;border-top:1px solid var(--line);font-size:12px;color:var(--mut)}
+.dot::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--ok);margin-right:6px;vertical-align:1px}
+.dot{color:var(--ok)}
 [hidden]{display:none!important}
 </style>
 </head>
 <body>
-<a class="logo" href="index.html">meu<b>perfil</b></a>
+<a class="brand" href="index.html"><span class="mk">m</span><span><b>meuperfil</b><small>Painel do criador</small></span></a>
 
 <div class="box">
   <section id="vin">
+    <span class="kick">Acesso</span>
     <h1>Entre com o Discord</h1>
     <p class="sub">Sua conta é criada automaticamente no primeiro acesso. Não precisa de senha.</p>
     <button class="btn dc" id="go" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.3 4.4A17 17 0 0 0 16.1 3l-.2.4a15 15 0 0 1 3.7 1.9 14 14 0 0 0-11.2 0A15 15 0 0 1 12.1 3.4L11.9 3a17 17 0 0 0-4.2 1.4C5 8.4 4.3 12.3 4.6 16.1a17 17 0 0 0 5.2 2.6l1.1-1.8a11 11 0 0 1-1.7-.8l.4-.3a12 12 0 0 0 10.4 0l.4.3a11 11 0 0 1-1.7.8l1.1 1.8a17 17 0 0 0 5.2-2.6c.4-4.4-.7-8.3-2.7-11.7zM9.7 13.8c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2zm6.6 0c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2z"/></svg>Entrar com o Discord</button>
-    <p class="note">Usamos só o seu id, nome e avatar do Discord. Nunca a sua senha nem as suas mensagens.</p>
+    <p class="note"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1 3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg><span>Usamos só o seu id, nome e avatar do Discord. Nunca a sua senha nem as suas mensagens.</span></p>
   </section>
 
   <section id="vok" hidden>
+    <span class="kick">Conta</span>
     <h1>Tudo pronto</h1>
     <p class="sub">Você está dentro. Abra o painel para montar a sua página.</p>
     <div class="me"><img id="av" alt="" hidden><i id="avl"></i><div><b id="dn"></b><small id="un"></small></div></div>
@@ -55,6 +67,7 @@ p.sub{color:var(--mut);margin:0 0 24px}
   </section>
 
   <p class="msg" id="msg" role="status" aria-live="polite"></p>
+  <div class="foot"><span>Login seguro</span><span class="dot">Discord OAuth</span></div>
 </div>
 
 <script>
