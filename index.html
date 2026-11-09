@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Brenkz · Crie sua página de links</title>
+<meta name="description" content="Crie uma página de links moderna, com vídeo de fundo, música e link próprio, e veja os perfis já criados.">
+<link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+<link rel="icon" type="image/png" href="assets/img/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#0b0712;--card:#130e1d;--line:#261c38;--ink:#f4f1fa;--mut:#a69fb8;--ac:#8b5cf6;--acd:#3b2470;--font:"Outfit",system-ui,sans-serif}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+body{margin:0;background:radial-gradient(900px 480px at 50% -120px,#33195f,transparent 70%),var(--bg);color:var(--ink);font:17px/1.6 var(--font);overflow-x:hidden}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--ac);outline-offset:3px}
+.wrap{width:min(1040px,92vw);margin:0 auto}
+
+/* menu */
+header{position:sticky;top:0;z-index:20;background:rgba(11,7,18,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.06)}
+.nav{display:flex;align-items:center;gap:32px;height:64px}
+.logo{font-size:22px;font-weight:600;text-decoration:none}
+.logo b{color:var(--ac)}
+.links{display:flex;gap:26px;margin-right:auto}
+.links a{color:var(--mut);text-decoration:none;font-size:15.5px}
+.links a:hover{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:11px 22px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-weight:500;text-decoration:none}
+.btn:hover{border-color:var(--ac)}
+.btn.pri{background:var(--acd);border-color:var(--ac)}
+.btn.pri:hover{background:#4a2c8a}
+.nav .btn{padding:8px 18px;font-size:15px}
+
+/* topo */
+.hero{text-align:center;padding:88px 0 56px}
+h1{font-size:clamp(36px,6vw,62px);line-height:1.1;font-weight:600;letter-spacing:-.025em;margin:0 auto 16px;max-width:14em}
+.hero p{color:var(--mut);font-size:clamp(17px,2vw,19px);max-width:34em;margin:0 auto 30px}
+.cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.cta .btn{padding:13px 26px}
+
+/* seções */
+section{padding:56px 0}
+h2{font-size:clamp(26px,3.6vw,34px);line-height:1.2;font-weight:600;margin:0 0 8px;letter-spacing:-.02em}
+.sub{color:var(--mut);margin:0 0 28px}
+.head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.cnt{color:var(--mut);font-size:15px}
+
+/* perfis */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.pf{display:flex;align-items:center;gap:14px;padding:16px;border-radius:18px;border:1px solid var(--line);background:var(--card);text-decoration:none;transition:border-color .15s,transform .15s}
+.pf:hover{border-color:var(--ac);transform:translateY(-2px)}
+.pf .av{width:54px;height:54px;border-radius:50%;background:#2b2735;border:2px solid var(--ac);display:grid;place-items:center;font-weight:600;font-size:22px;overflow:hidden;flex:none}
+.pf .av img{width:100%;height:100%;object-fit:cover}
+.pf .tx{min-width:0;display:flex;flex-direction:column}
+.pf b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pf small{color:var(--mut)}
+.pf em{font-style:normal;color:var(--mut);font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* recursos e passos */
+.feat{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:28px 36px}
+.feat h3{margin:0 0 4px;font-size:18px;font-weight:600}
+.feat p{margin:0;color:var(--mut);font-size:15.5px}
+.steps{counter-reset:s}
+.steps div{position:relative;padding-left:46px}
+.steps div::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:0;width:32px;height:32px;border-radius:50%;border:1px solid var(--ac);color:var(--ac);display:grid;place-items:center;font-weight:600}
+details{border-bottom:1px solid var(--line)}
+summary{cursor:pointer;padding:18px 0;font-weight:500;list-style:none;display:flex;justify-content:space-between;gap:12px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";color:var(--ac);font-size:22px;line-height:1}
+details[open] summary::after{content:"–"}
+details p{margin:0 0 18px;color:var(--mut)}
+footer{padding:36px 0 48px;color:var(--mut);font-size:14px;text-align:center;border-top:1px solid rgba(255,255,255,.06);margin-top:30px}
+
+@media(max-width:720px){
+  .nav{flex-wrap:wrap;height:auto;padding:12px 0 10px;gap:10px 16px}
+  .logo{margin-right:auto}
+  .links{order:3;width:100%;overflow-x:auto;gap:22px;margin:0}
+  .hero{padding-top:56px}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="index.html">meu<b>perfil</b></a>
+    <nav class="links" aria-label="Principal">
+      <a href="#perfis">Perfis</a>
+      <a href="#recursos">Recursos</a>
+      <a href="#como">Como funciona</a>
+      <a href="#faq">Perguntas</a>
+    </nav>
+    <a class="btn pri" id="navbtn" href="conta.html">Entrar</a>
+  </div>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <h1>Tudo o que você quer, bem aqui.</h1>
+    <p>Crie uma página de links com vídeo de fundo, música e um endereço só seu. Sem escrever código.</p>
+    <div class="cta">
+      <a class="btn pri" href="conta.html">Entrar com o Discord</a>
+      <a class="btn" href="#perfis">Ver perfis</a>
+    </div>
+  </div>
+
+  <section id="perfis">
+    <div class="wrap">
+      <div class="head"><h2>Perfis criados</h2><span class="cnt" id="cnt"></span></div>
+      <p class="sub">Veja como outras pessoas montaram a página delas.</p>
+      <div class="grid" id="lista" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section id="recursos">
+    <div class="wrap">
+      <h2>O que você pode fazer</h2>
+      <p class="sub">Personalize cada detalhe e confira o resultado antes de publicar.</p>
+      <div class="feat">
+        <div><h3>Vídeo ou imagem de fundo</h3><p>Envie um vídeo em loop ou uma imagem e deixe a página com a sua cara.</p></div>
+        <div><h3>Player de música</h3><p>Suba um áudio e a página ganha um player com play, progresso e tempo.</p></div>
+        <div><h3>Links e redes</h3><p>YouTube, Twitch, Discord, Instagram, TikTok, GitHub ou qualquer site.</p></div>
+        <div><h3>Efeitos</h3><p>Neve, estrelas, brilho e arco-íris no nome, mais desfoque e opacidade do cartão.</p></div>
+        <div><h3>Cores e cursor</h3><p>Escolha as cores de destaque, do texto e do cartão, e um cursor personalizado.</p></div>
+        <div><h3>Endereço próprio</h3><p>Sua página fica em <b>brenkz.com.br/seu-nome.html</b>.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="como">
+    <div class="wrap">
+      <h2>Como funciona</h2>
+      <p class="sub">Em poucos minutos a sua página está no ar.</p>
+      <div class="feat steps">
+        <div><h3>Entre com o Discord</h3><p>Um clique e a sua conta é criada, sem senha.</p></div>
+        <div><h3>Personalize</h3><p>Envie fundo, música e avatar, adicione links e use “Pré-visualizar”.</p></div>
+        <div><h3>Publique</h3><p>Clique em “Minha página” e você é levado para o seu endereço.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap" style="max-width:720px">
+      <h2>Perguntas frequentes</h2>
+      <p class="sub">O essencial antes de começar.</p>
+      <details><summary>É grátis?</summary><p>Sim. Criar e publicar a sua página não custa nada.</p></details>
+      <details><summary>Preciso criar uma conta?</summary><p>É só entrar com o Discord, e a conta é criada sozinha no primeiro acesso. Não existe senha para criar ou esquecer, e isso garante que o seu endereço só pode ser editado por você.</p></details>
+      <details><summary>E se eu trocar de navegador ou aparelho?</summary><p>Entre com o mesmo Discord e você continua dono da sua página. Os arquivos e as configurações do painel ficam salvos no navegador, então em outro aparelho será preciso enviá-los de novo antes de atualizar a página.</p></details>
+      <details><summary>Quanto tempo leva para a página aparecer?</summary><p>De 1 a 2 minutos depois de clicar em “Minha página”. O painel espera e leva você para lá automaticamente.</p></details>
+      <details><summary>Que arquivos posso enviar?</summary><p>Imagens PNG, JPG, WEBP e GIF, vídeos MP4 e WEBM e áudios MP3, OGG e WAV, até 20 MB no total.</p></details>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap">© 2026 Brenkz · <a href="brenkz.html">Conheça o meu perfil</a></div></footer>
+
+<script>
+(function(){
+var API="https://painel-brenkz.bre-uccelli.workers.dev";
+
+/* botão do menu muda quando a pessoa já tem conta */
+var t=localStorage.getItem("conta-token");
+if(t)fetch(API+"/me",{headers:{Authorization:"Bearer "+t}}).then(function(r){return r.ok?r.json():null}).then(function(m){
+  if(!m)return;var b=document.getElementById("navbtn");
+  b.textContent=m.discord?"Meu painel":"Conectar Discord";b.href=m.discord?"painel.html":"conta.html"}).catch(function(){});
+
+/* lista de perfis */
+var box=document.getElementById("lista"),cnt=document.getElementById("cnt");
+var base=[{u:"brenkz",n:"Brenkz",d:"Vídeos sobre o que eu gosto de fazer.",a:"",href:"brenkz.html"}];
+var AV=/^(assets\/perfis\/[a-z0-9-]+\/avatar\.(png|jpg|webp|gif)|https:\/\/cdn\.discordapp\.com\/avatars\/[0-9]+\/[A-Za-z0-9_]+\.png\?size=128)$/;
+function card(p){
+  var a=document.createElement("a");a.className="pf";a.href=p.href||(encodeURIComponent(p.u)+".html");
+  var av=document.createElement("span");av.className="av";
+  if(p.a&&AV.test(p.a)){var im=document.createElement("img");im.src=p.a;im.alt="";im.loading="lazy";av.appendChild(im)}
+  else av.textContent=String(p.n||p.u).charAt(0).toUpperCase();
+  var x=document.createElement("span");x.className="tx";
+  var b=document.createElement("b");b.textContent=p.n||p.u;
+  var s=document.createElement("small");s.textContent="@"+p.u;
+  x.appendChild(b);x.appendChild(s);
+  if(p.d){var d=document.createElement("em");d.textContent=p.d;x.appendChild(d)}
+  a.appendChild(av);a.appendChild(x);return a;
+}
+function render(list){
+  box.textContent="";list.forEach(function(p){box.appendChild(card(p))});
+  cnt.textContent=list.length+(list.length===1?" perfil":" perfis");
+}
+render(base);
+fetch(API+"/perfis").then(function(r){return r.ok?r.json():{perfis:[]}})
+  .then(function(j){render(base.concat((j.perfis||[]).filter(function(p){return p&&/^[a-z0-9-]+$/.test(p.u)})))})
+  .catch(function(){});
+})();
+</script>
+</body>
+</html>
