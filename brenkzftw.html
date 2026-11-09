@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="v" content="mw9cqtjj"><title>Brenkzftw</title>
+<meta name="v" content="mw9ewyn8"><title>Brenkzftw</title>
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
 <style>
 :root{--ac:#ffffff;--tx:#ffffff;--ic:#ffffff}
@@ -27,6 +27,11 @@ h1.pl{animation:pl 2.4s ease-in-out infinite}
 .l a:hover svg,.l a:focus-visible svg{filter:drop-shadow(0 0 6px var(--g)) drop-shadow(0 0 18px var(--g))}
 .vw{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;font-weight:500}
 .vw[hidden]{display:none}
+.lv{display:none;margin:12px auto 0;width:max-content;align-items:center;gap:8px;padding:4px 12px;border-radius:999px;background:rgba(229,37,61,.22);border:1px solid rgba(229,37,61,.6);color:#fff;font-size:13px;font-weight:600;text-decoration:none}
+.lv.on{display:flex}
+.lv i{width:8px;height:8px;border-radius:50%;background:#e5253d;animation:pl 1.6s infinite}
+.l a{position:relative}
+.l a.live::after{content:"";position:absolute;top:2px;right:2px;width:10px;height:10px;border-radius:50%;background:#e5253d;border:2px solid #0d0d12;animation:pl 1.6s infinite}
 .vw svg{width:26px;height:26px;fill:currentColor}
 .vw.gl{text-shadow:0 0 10px currentColor,0 0 22px rgba(255,255,255,0.5)}
 .vw.gl svg{filter:drop-shadow(0 0 5px currentColor) drop-shadow(0 0 14px rgba(255,255,255,0.6))}
@@ -42,8 +47,9 @@ h1.pl{animation:pl 2.4s ease-in-out infinite}
 <main>
 <section class="c"><div class="av"><img src="https://cdn.discordapp.com/avatars/1206585870736556084/342e7ccec55ee013bb2247f09d330a18.png?size=128" alt=""></div>
 <h1 class="pl">brenkzftw</h1>
+<a class="lv" id="lv" href="https://www.twitch.tv/brenkzftw" target="_blank" rel="noopener noreferrer"><i></i>AO VIVO AGORA</a>
 
-<div class="l"><a href="https://www.youtube.com/@brenkzftw" target="_blank" rel="noopener noreferrer" aria-label="YouTube" title="YouTube" style="--k:#ff5252;--g:#ff5252"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8zM9.6 15.6V8.4l6.2 3.6-6.2 3.6z"/></svg></a></div>
+<div class="l"><a href="https://www.youtube.com/@brenkzftw" target="_blank" rel="noopener noreferrer" aria-label="YouTube" title="YouTube" data-p="YouTube" style="--k:#ffffff;--g:#ff5252"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8zM9.6 15.6V8.4l6.2 3.6-6.2 3.6z"/></svg></a></div>
 <div class="vw" id="vw" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg><span id="vn">0</span></div></section>
 
 </main>
@@ -54,6 +60,10 @@ fetch("https://painel-brenkz.bre-uccelli.workers.dev"+"/view",{method:"POST",hea
 .then(function(r){return r.json()}).then(function(j){if(typeof j.n!=="number")return;
 document.getElementById("vn").textContent=j.n.toLocaleString("pt-BR");document.getElementById("vw").hidden=false;
 try{localStorage.setItem(vk,"1")}catch(e){}}).catch(function(){});
+function lv(){fetch("https://painel-brenkz.bre-uccelli.workers.dev"+"/live?p="+"brenkzftw").then(function(r){return r.json()}).then(function(j){var on=j.live===true;
+document.getElementById("lv").classList.toggle("on",on);
+document.querySelectorAll('.l a[data-p="Twitch"]').forEach(function(a){a.classList.toggle("live",on)})}).catch(function(){})}
+lv();setInterval(lv,60000);
 var FX="none";
 if(FX!=="none"){var cv=document.getElementById("cv"),g=cv.getContext("2d");cv.width=innerWidth;cv.height=innerHeight;
 var P=[];for(var i=0;i<(FX==="neve"?90:70);i++)P.push({x:Math.random()*cv.width,y:Math.random()*cv.height,r:Math.random()*2.2+.6,s:Math.random()+.4,p:Math.random()*6});
