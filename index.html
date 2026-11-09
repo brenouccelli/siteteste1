@@ -26,6 +26,7 @@ header{position:sticky;top:0;z-index:20;background:rgba(10,15,25,.86);backdrop-f
 .nav{display:flex;align-items:center;gap:28px;height:64px}
 .brand{display:flex;align-items:center;gap:11px;text-decoration:none}
 .brand .mk{width:36px;height:36px;border-radius:50%;border:1px solid var(--line2);background:radial-gradient(circle at 30% 30%,#2b3d60,#101826);display:grid;place-items:center;font-weight:700;font-size:15px}
+.brand img.mk{border:0;background:none;border-radius:0;display:block}
 .brand b{display:block;font-size:15px;font-weight:600;line-height:1.2}
 .brand small{display:block;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--mut)}
 .links{display:flex;gap:4px;margin-right:auto}
@@ -96,7 +97,7 @@ footer a{color:var(--ink)}
 
 <header>
   <div class="wrap nav">
-    <a class="brand" href="./"><span class="mk">m</span><span><b>meuperfil</b><small>Páginas de links</small></span></a>
+    <a class="brand" href="./"><img class="mk" src="assets/img/favicon.svg" alt=""><span><b>meuperfil</b><small>Páginas de links</small></span></a>
     <nav class="links" aria-label="Principal">
       <a href="#perfis">Perfis</a>
       <a href="#recursos">Recursos</a>
