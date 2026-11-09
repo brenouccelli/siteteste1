@@ -369,8 +369,10 @@ function aoRolar(){
 addEventListener("scroll", () => { if (!esperando){ esperando = true; requestAnimationFrame(aoRolar); } }, { passive: true });
 aoRolar();
 
-/* vídeo de fundo: pausa se a pessoa prefere menos movimento */
-if (matchMedia("(prefers-reduced-motion: reduce)").matches) $("bgVideo").pause();
+/* vídeo de fundo: garante que toca; se o navegador segurar o play automático, toca no primeiro clique */
+const bgPlay = () => $("bgVideo").play().catch(() => {});
+bgPlay();
+addEventListener("pointerdown", bgPlay, { once: true });
 
 /* Twitch: avisa quando o canal estiver ao vivo */
 const twLink = [...document.querySelectorAll("#icones a")].find(a => a.href.includes("twitch.tv"));

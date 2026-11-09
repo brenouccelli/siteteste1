@@ -26,7 +26,10 @@
   const bg = $("bgVideo");
   if (P.fundo && P.fundo.video) {
     const s = document.createElement("source"); s.src = P.fundo.src; s.type = /\.webm($|\?)/.test(P.fundo.src) ? "video/webm" : "video/mp4";
-    bg.appendChild(s); bg.load(); if (reduz) bg.pause();
+    bg.appendChild(s); bg.load();
+    /* garante que o vídeo toca; se o navegador segurar o play automático, toca no primeiro clique */
+    const bgPlay = () => bg.play().catch(() => {});
+    bgPlay(); addEventListener("pointerdown", bgPlay, { once: true });
   } else {
     if (P.fundo && P.fundo.src) bg.style.backgroundImage = `url("${P.fundo.src}")`;
     bg.removeAttribute("autoplay");
