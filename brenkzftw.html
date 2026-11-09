@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="v" content="mw9cj55v"><title>Brenkzftw</title>
+<link rel="icon" type="image/png" href="assets/img/favicon.png">
+<style>
+:root{--ac:#ffffff;--tx:#ffffff;--ic:#ffffff}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:grid;place-items:center;color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;background:#0d0d12 ;}
+video,canvas{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;z-index:0}
+main{position:relative;z-index:1;width:min(340px,92vw);padding:24px 0}
+.c,.p{border:1px solid rgba(255,255,255,0.14);background:linear-gradient(145deg,rgba(13,13,18,0),rgba(255,255,255,0));backdrop-filter:blur(0px);-webkit-backdrop-filter:blur(0px)}
+.c{text-align:center;padding:26px 22px;border-radius:24px}
+.av{width:104px;height:104px;border-radius:50%;margin:0 auto 12px;background:#33303c;color:#fff;display:grid;place-items:center;font-size:44px;font-weight:600;overflow:hidden;border:2px solid var(--ac)}
+.av img{width:100%;height:100%;object-fit:cover}
+h1{margin:0;font-size:28px}
+h1.g{text-shadow:0 0 10px #ffffff,0 0 22px rgba(255,255,255,0.6)}
+h1.rb{background:linear-gradient(90deg,#f66,#fc6,#6f6,#6cf,#c6f,#f66);background-size:200%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:rb 4s linear infinite}
+h1.pl{animation:pl 2.4s ease-in-out infinite}
+@keyframes rb{to{background-position:200% 0}}
+@keyframes pl{50%{opacity:.5}}
+.c p{margin:6px 0;opacity:.9}.c small{opacity:.7}
+.l{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:14px}
+.l a{text-decoration:none;border:1px solid;border-radius:10px;padding:6px 12px;font-size:14px}
+.l.gl a{text-shadow:0 0 10px #ffffff,0 0 22px rgba(255,255,255,0.6);box-shadow:0 0 12px -2px var(--ac)}
+.vw{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;font-weight:500}
+.vw[hidden]{display:none}
+.vw svg{width:26px;height:26px;fill:currentColor}
+.vw.gl{text-shadow:0 0 10px currentColor,0 0 22px rgba(255,255,255,0.5)}
+.vw.gl svg{filter:drop-shadow(0 0 5px currentColor) drop-shadow(0 0 14px rgba(255,255,255,0.6))}
+.p{margin-top:14px;padding:16px;border-radius:22px}
+.p h4{margin:0 0 10px;font-weight:500;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.t{display:flex;align-items:center;gap:10px;font-size:13px}.t input{flex:1;accent-color:var(--ac)}
+.p button{margin-top:8px;width:46px;height:46px;border-radius:50%;border:0;background:var(--ac);color:#fff;font-size:18px;cursor:pointer}
+.vl{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:12px;opacity:.85}.vl input{flex:1;accent-color:var(--ac)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style></head><body>
+
+<canvas id="cv"></canvas>
+<main>
+<section class="c"><div class="av"><img src="https://cdn.discordapp.com/avatars/1206585870736556084/342e7ccec55ee013bb2247f09d330a18.png?size=128" alt=""></div>
+<h1 class="pl">brenkzftw</h1>
+
+<div class="l"><a href="https://www.youtube.com/@brenkzftw" target="_blank" rel="noopener noreferrer" style="color:#ff5252;border-color:rgba(255,82,82,0.35)">YouTube</a></div>
+<div class="vw" id="vw" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg><span id="vn">0</span></div></section>
+
+</main>
+<script>
+(function(){
+var vk="v-"+"brenkzftw",seen=false;try{seen=!!localStorage.getItem(vk)}catch(e){}
+fetch("https://painel-brenkz.bre-uccelli.workers.dev"+"/view",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({p:"brenkzftw",inc:!seen})})
+.then(function(r){return r.json()}).then(function(j){if(typeof j.n!=="number")return;
+document.getElementById("vn").textContent=j.n.toLocaleString("pt-BR");document.getElementById("vw").hidden=false;
+try{localStorage.setItem(vk,"1")}catch(e){}}).catch(function(){});
+var FX="none";
+if(FX!=="none"){var cv=document.getElementById("cv"),g=cv.getContext("2d");cv.width=innerWidth;cv.height=innerHeight;
+var P=[];for(var i=0;i<(FX==="neve"?90:70);i++)P.push({x:Math.random()*cv.width,y:Math.random()*cv.height,r:Math.random()*2.2+.6,s:Math.random()+.4,p:Math.random()*6});
+(function f(){g.clearRect(0,0,cv.width,cv.height);P.forEach(function(p){
+if(FX==="neve"){p.y+=p.s;p.x+=Math.sin(p.p+=.01);if(p.y>cv.height){p.y=-5;p.x=Math.random()*cv.width}g.globalAlpha=.85}
+else g.globalAlpha=.3+.7*Math.abs(Math.sin(p.p+=.02*p.s));
+g.fillStyle="#fff";g.beginPath();g.arc(p.x,p.y,p.r,0,7);g.fill()});requestAnimationFrame(f)})()}
+var T=document.title,n=T.length,up=false;setInterval(function(){if(!up){n--;if(n<=1)up=true}else{n++;if(n>=T.length)up=false}document.title=T.slice(0,n)+"\u200e"},400);
+
+})();
+</script></body></html>
