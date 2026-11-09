@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="v" content="mw9cj55v"><title>Brenkzftw</title>
+<meta name="v" content="mw9cqtjj"><title>Brenkzftw</title>
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
 <style>
 :root{--ac:#ffffff;--tx:#ffffff;--ic:#ffffff}
@@ -8,7 +8,7 @@
 body{margin:0;min-height:100vh;display:grid;place-items:center;color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;background:#0d0d12 ;}
 video,canvas{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;z-index:0}
 main{position:relative;z-index:1;width:min(340px,92vw);padding:24px 0}
-.c,.p{border:1px solid rgba(255,255,255,0.14);background:linear-gradient(145deg,rgba(13,13,18,0),rgba(255,255,255,0));backdrop-filter:blur(0px);-webkit-backdrop-filter:blur(0px)}
+.c,.p{border:0;background:linear-gradient(145deg,rgba(13,13,18,0),rgba(255,255,255,0));backdrop-filter:blur(0px);-webkit-backdrop-filter:blur(0px)}
 .c{text-align:center;padding:26px 22px;border-radius:24px}
 .av{width:104px;height:104px;border-radius:50%;margin:0 auto 12px;background:#33303c;color:#fff;display:grid;place-items:center;font-size:44px;font-weight:600;overflow:hidden;border:2px solid var(--ac)}
 .av img{width:100%;height:100%;object-fit:cover}
@@ -19,9 +19,12 @@ h1.pl{animation:pl 2.4s ease-in-out infinite}
 @keyframes rb{to{background-position:200% 0}}
 @keyframes pl{50%{opacity:.5}}
 .c p{margin:6px 0;opacity:.9}.c small{opacity:.7}
-.l{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:14px}
-.l a{text-decoration:none;border:1px solid;border-radius:10px;padding:6px 12px;font-size:14px}
-.l.gl a{text-shadow:0 0 10px #ffffff,0 0 22px rgba(255,255,255,0.6);box-shadow:0 0 12px -2px var(--ac)}
+.l{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:16px}
+.l a{width:44px;height:44px;display:grid;place-items:center;color:var(--k);transition:transform .15s}
+.l a:hover,.l a:focus-visible{transform:scale(1.12)}
+.l svg{width:34px;height:34px;fill:currentColor;filter:drop-shadow(0 0 5px rgba(255,255,255,0.35));transition:filter .25s}
+.l.gl svg{filter:drop-shadow(0 0 6px var(--k)) drop-shadow(0 0 14px var(--k))}
+.l a:hover svg,.l a:focus-visible svg{filter:drop-shadow(0 0 6px var(--g)) drop-shadow(0 0 18px var(--g))}
 .vw{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;font-weight:500}
 .vw[hidden]{display:none}
 .vw svg{width:26px;height:26px;fill:currentColor}
@@ -40,7 +43,7 @@ h1.pl{animation:pl 2.4s ease-in-out infinite}
 <section class="c"><div class="av"><img src="https://cdn.discordapp.com/avatars/1206585870736556084/342e7ccec55ee013bb2247f09d330a18.png?size=128" alt=""></div>
 <h1 class="pl">brenkzftw</h1>
 
-<div class="l"><a href="https://www.youtube.com/@brenkzftw" target="_blank" rel="noopener noreferrer" style="color:#ff5252;border-color:rgba(255,82,82,0.35)">YouTube</a></div>
+<div class="l"><a href="https://www.youtube.com/@brenkzftw" target="_blank" rel="noopener noreferrer" aria-label="YouTube" title="YouTube" style="--k:#ff5252;--g:#ff5252"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8zM9.6 15.6V8.4l6.2 3.6-6.2 3.6z"/></svg></a></div>
 <div class="vw" id="vw" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg><span id="vn">0</span></div></section>
 
 </main>
