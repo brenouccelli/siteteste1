@@ -42,7 +42,8 @@ function renderPage(c, m, slug, v, api, o) {
   const boxBg = c.inv === true ? tx : cd, boxTx = c.inv === true ? cd : tx;
   const op = num(c.op, 0, 100, 50) / 100, bl = num(c.blur, 0, 100, 0), sc = num(c.sc, 60, 140, 100) / 100;
   const lg = num(c.lg, 0, 100, gl.l ? 70 : 30), mix = (p) => `color-mix(in srgb,var(--k) ${Math.round(p)}%,transparent)`;
-  const lgf = lg === 0 ? "none" : `drop-shadow(0 0 ${(2 + lg * 0.08).toFixed(1)}px ${mix(lg)}) drop-shadow(0 0 ${(4 + lg * 0.26).toFixed(1)}px ${mix(lg * 0.85)})`;
+  const glow = v => `drop-shadow(0 0 ${(2 + v * 0.08).toFixed(1)}px ${mix(v)}) drop-shadow(0 0 ${(4 + v * 0.26).toFixed(1)}px ${mix(v * 0.85)})`;
+  const lgf = lg === 0 ? "none" : glow(lg), lgh = glow(Math.min(100, lg + 30));
   const fill = c.grad === true
     ? `linear-gradient(145deg,${rgba(boxBg, op)},${rgba(ac, Math.min(1, op * 0.7))})`
     : rgba(boxBg, op);
@@ -66,7 +67,7 @@ function renderPage(c, m, slug, v, api, o) {
       const p = String(l.p).slice(0, 20);
       const k = c.mono === false ? (brand[p] || ac) : ic;
       const d = ICO[p] || ICO.Site;
-      return `<a href="${esc(l.u)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(p)}" title="${esc(p)}" data-p="${esc(p)}" style="--k:${k};--g:${brand[p] || ac}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/></svg></a>`;
+      return `<a href="${esc(l.u)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(p)}" title="${esc(p)}" data-p="${esc(p)}" style="--k:${k}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/></svg></a>`;
     }).join("");
   const dav = /^https:\/\/cdn\.discordapp\.com\/avatars\/[0-9]+\/[A-Za-z0-9_]+\.png\?size=128$/.test(c.dav || "") ? c.dav : "";
   const av = dav || url(m.avatar), bg = url(m.bg), cur = url(m.cursor), aud = url(m.audio);
@@ -78,10 +79,12 @@ function renderPage(c, m, slug, v, api, o) {
 <html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="v" content="${esc(v)}">${o.preview ? "" : `<script>(function(){var p=location.pathname;if(/\\.html$/.test(p))history.replaceState(null,"",p.replace(/\\.html$/,"")+location.search+location.hash)})()<\/script>`}<title>${esc(title)}</title>
 <link rel="icon" type="image/png" href="${o.preview ? "" : "assets/img/favicon.png"}">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{--ac:${ac};--tx:${boxTx};--ic:${ic}}
 *{box-sizing:border-box}
-body{margin:0;min-height:100vh;display:grid;place-items:center;color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;background:${cd} ${bg && !isVid ? `url(${bg}) center/cover fixed` : ""};${cur ? `cursor:url(${cur}) 0 0,auto;` : ""}}
+body{margin:0;min-height:100vh;display:grid;place-items:center;color:var(--tx);font:16px/1.5 Outfit,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;background:${cd} ${bg && !isVid ? `url(${bg}) center/cover fixed` : ""};${cur ? `cursor:url(${cur}) 0 0,auto;` : ""}}
 video,canvas{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;z-index:0}
 main{position:relative;z-index:1;width:min(340px,92vw);padding:24px 0;zoom:${sc}}
 .c,.p{border:${c.nob === true ? "0" : `1px solid ${rgba(boxTx, 0.14)}`};background:${fill};backdrop-filter:blur(${bl}px);-webkit-backdrop-filter:blur(${bl}px)}
@@ -99,7 +102,7 @@ h1.pl{animation:pl 2.4s ease-in-out infinite}
 .l a{width:44px;height:44px;display:grid;place-items:center;color:var(--k);transition:transform .15s}
 .l a:hover,.l a:focus-visible{transform:scale(1.12)}
 .l svg{width:34px;height:34px;fill:currentColor;filter:${lgf};transition:filter .25s}
-.l a:hover svg,.l a:focus-visible svg{filter:drop-shadow(0 0 6px var(--g)) drop-shadow(0 0 18px var(--g))}
+.l a:hover svg,.l a:focus-visible svg{filter:${lgh}}
 .vw{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;font-weight:500}
 .vw[hidden]{display:none}
 .lv{display:none;margin:12px auto 0;width:max-content;align-items:center;gap:8px;padding:4px 12px;border-radius:999px;background:rgba(229,37,61,.22);border:1px solid rgba(229,37,61,.6);color:#fff;font-size:13px;font-weight:600;text-decoration:none}
@@ -128,11 +131,11 @@ input.pg::-moz-range-thumb{width:11px;height:11px;border:0;border-radius:50%;bac
 .ct button:hover{opacity:1;transform:scale(1.08)}
 .ct svg{width:22px;height:22px;fill:currentColor}
 .ct .pp svg{width:30px;height:30px}
-.vb{position:fixed;right:16px;top:16px;z-index:5;display:flex;flex-direction:row-reverse;align-items:center;height:48px;max-width:48px;overflow:hidden;border-radius:14px;color:${tx};background:${rgba(cd, 0.45)};border:1px solid ${rgba(tx, 0.16)};backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:max-width .4s cubic-bezier(.4,0,.2,1)}
+.vb{position:fixed;left:16px;top:16px;z-index:5;display:flex;align-items:center;height:48px;max-width:48px;overflow:hidden;border-radius:14px;color:${tx};background:${rgba(cd, 0.45)};border:1px solid ${rgba(tx, 0.16)};backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:max-width .4s cubic-bezier(.4,0,.2,1)}
 .vb:hover,.vb:focus-within{max-width:220px}
 .mu{flex:none;width:46px;height:46px;border:0;background:none;color:inherit;cursor:pointer;display:grid;place-items:center}
 .mu svg{width:24px;height:24px;fill:currentColor}
-.vb input{flex:none;width:130px;margin:0 4px 0 16px;opacity:0;transition:opacity .3s .08s}
+.vb input{flex:none;width:130px;margin:0 16px 0 4px;opacity:0;transition:opacity .3s .08s}
 .vb:hover input,.vb:focus-within input{opacity:1}
 .en{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;border:0;padding:0;font:inherit;color:${tx};cursor:pointer;background:rgba(0,0,0,.5);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);transition:opacity .5s}
 .en[hidden]{display:none}.en.out{opacity:0;pointer-events:none}
