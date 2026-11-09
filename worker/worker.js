@@ -74,7 +74,7 @@ function renderPage(c, m, slug, v, api, o) {
   const counter = api || o.preview;
   return `<!DOCTYPE html>
 <html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="v" content="${esc(v)}"><title>${esc(title)}</title>
+<meta name="v" content="${esc(v)}">${o.preview ? "" : `<script>(function(){var p=location.pathname;if(/\\.html$/.test(p))history.replaceState(null,"",p.replace(/\\.html$/,"")+location.search+location.hash)})()<\/script>`}<title>${esc(title)}</title>
 <link rel="icon" type="image/png" href="${o.preview ? "" : "assets/img/favicon.png"}">
 <style>
 :root{--ac:${ac};--tx:${boxTx};--ic:${ic}}
@@ -229,10 +229,10 @@ export default {
     // ----- Entrar com o Discord (cria a conta no primeiro acesso) -----
     if (req.method === "GET" && path === "/discord/start") {
       const nonce = (url.searchParams.get("n") || "").slice(0, 60);
-      if (!/^[A-Za-z0-9_-]{16,60}$/.test(nonce)) return go(`${env.SITE}/conta.html?erro=nonce`);
+      if (!/^[A-Za-z0-9_-]{16,60}$/.test(nonce)) return go(`${env.SITE}/conta?erro=nonce`);
       if (!env.DISCORD_CLIENT_ID || !env.DISCORD_CLIENT_SECRET || !env.SESSION_SECRET) {
         console.log("discord/start: faltam variáveis", { DISCORD_CLIENT_ID: !!env.DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET: !!env.DISCORD_CLIENT_SECRET, SESSION_SECRET: !!env.SESSION_SECRET });
-        return go(`${env.SITE}/conta.html?erro=config`);
+        return go(`${env.SITE}/conta?erro=config`);
       }
       const state = await sign(env, { n: "d", nn: nonce, exp: Date.now() + 10 * 60 * 1000 });
       const q = new URLSearchParams({
@@ -242,7 +242,7 @@ export default {
       return go(`https://discord.com/oauth2/authorize?${q}`);
     }
     if (req.method === "GET" && path === "/discord/callback") {
-      const back = q => go(`${env.SITE}/conta.html?${q}`);
+      const back = q => go(`${env.SITE}/conta?${q}`);
       if (url.searchParams.get("error")) return back("erro=cancelado");
       const st = await verify(env, url.searchParams.get("state") || "");
       const code = url.searchParams.get("code");
@@ -281,12 +281,12 @@ export default {
       };
       await env.USERS.put("u:" + slug, JSON.stringify(rec));
       const token = await sign(env, { n: "s", u: slug, exp: Date.now() + 30 * 24 * 3600 * 1000 });
-      return go(`${env.SITE}/conta.html#t=${token}&n=${st.nn}`);
+      return go(`${env.SITE}/conta#t=${token}&n=${st.nn}`);
     }
 
     // ----- Conectar a Twitch (mostra "AO VIVO" na página) -----
     if (req.method === "GET" && path === "/twitch/callback") {
-      const back = q => go(`${env.SITE}/painel.html?twitch=${q}`);
+      const back = q => go(`${env.SITE}/painel?twitch=${q}`);
       if (url.searchParams.get("error")) return back("cancelado");
       const st = await verify(env, url.searchParams.get("state") || "");
       const code = url.searchParams.get("code");
@@ -462,6 +462,6 @@ export default {
       n: String(cfg.user || slug).slice(0, 24), d: String(cfg.desc || "").slice(0, 80),
       a: cfg.dav || (m.avatar ? `assets/perfis/${slug}/${m.avatar}` : ""), t: Date.now()
     }));
-    return out({ url: `${env.SITE}/${slug}.html`, v, token });
+    return out({ url: `${env.SITE}/${slug}`, v, token });
   }
 };

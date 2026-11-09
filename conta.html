@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
+<script>(function(){var p=location.pathname;if(/\.html$/.test(p)){p=p.replace(/(^|\/)index\.html$/,"$1").replace(/\.html$/,"");history.replaceState(null,"",p+location.search+location.hash)}})()</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Entrar · Brenkz</title>
 <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
@@ -46,7 +47,7 @@ p.sub{color:var(--mut);margin:0 0 22px}
 </style>
 </head>
 <body>
-<a class="brand" href="index.html"><span class="mk">m</span><span><b>meuperfil</b><small>Painel do criador</small></span></a>
+<a class="brand" href="./"><span class="mk">m</span><span><b>meuperfil</b><small>Painel do criador</small></span></a>
 
 <div class="box">
   <section id="vin">
@@ -62,7 +63,7 @@ p.sub{color:var(--mut);margin:0 0 22px}
     <h1>Tudo pronto</h1>
     <p class="sub">Você está dentro. Abra o painel para montar a sua página.</p>
     <div class="me"><img id="av" alt="" hidden><i id="avl"></i><div><b id="dn"></b><small id="un"></small></div></div>
-    <a class="btn" href="painel.html">Ir para o painel</a>
+    <a class="btn" href="painel">Ir para o painel</a>
     <button class="btn ghost" id="out" type="button">Sair da conta</button>
   </section>
 
@@ -97,7 +98,7 @@ function carregar(irParaPainel){
       $("dn").textContent=d.name||me.user;$("un").textContent="@"+me.user;
       $("avl").textContent=(d.name||me.user)[0].toUpperCase();
       if(d.avatar){$("av").src=d.avatar;$("av").hidden=false;$("avl").hidden=true}
-      if(irParaPainel)setTimeout(function(){location.href="painel.html"},900);
+      if(irParaPainel)setTimeout(function(){location.href="painel"},900);
     })
     .catch(function(){localStorage.removeItem(TK);show(false)});
 }
@@ -122,7 +123,7 @@ if(q.get("erro")){
   var e=q.get("erro"),det=[q.get("s"),q.get("e")].filter(Boolean).join(" ");
   msg((ERROS[e]||"Não foi possível entrar com o Discord.")+(det?" ["+det+"]":"")+" Tente de novo.");
 }
-if(location.hash||location.search)history.replaceState(null,"","conta.html");
+if(location.hash||location.search)history.replaceState(null,"","conta");
 carregar(entrou);
 })();
 </script>
