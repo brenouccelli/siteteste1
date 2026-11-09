@@ -41,6 +41,8 @@ function renderPage(c, m, slug, v, api, o) {
   const ac = hex(col.ac, "#8b5cf6"), tx = hex(col.tx, "#ffffff"), cd = hex(col.cd, "#0d0d12"), ic = hex(col.ic, "#ffffff");
   const boxBg = c.inv === true ? tx : cd, boxTx = c.inv === true ? cd : tx;
   const op = num(c.op, 0, 100, 50) / 100, bl = num(c.blur, 0, 100, 0), sc = num(c.sc, 60, 140, 100) / 100;
+  const lg = num(c.lg, 0, 100, gl.l ? 70 : 30), mix = (p) => `color-mix(in srgb,var(--k) ${Math.round(p)}%,transparent)`;
+  const lgf = lg === 0 ? "none" : `drop-shadow(0 0 ${(2 + lg * 0.08).toFixed(1)}px ${mix(lg)}) drop-shadow(0 0 ${(4 + lg * 0.26).toFixed(1)}px ${mix(lg * 0.85)})`;
   const fill = c.grad === true
     ? `linear-gradient(145deg,${rgba(boxBg, op)},${rgba(ac, Math.min(1, op * 0.7))})`
     : rgba(boxBg, op);
@@ -96,8 +98,7 @@ h1.pl{animation:pl 2.4s ease-in-out infinite}
 .l{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:16px}
 .l a{width:44px;height:44px;display:grid;place-items:center;color:var(--k);transition:transform .15s}
 .l a:hover,.l a:focus-visible{transform:scale(1.12)}
-.l svg{width:34px;height:34px;fill:currentColor;filter:drop-shadow(0 0 5px ${rgba(boxTx, 0.35)});transition:filter .25s}
-.l.gl svg{filter:drop-shadow(0 0 6px var(--k)) drop-shadow(0 0 14px var(--k))}
+.l svg{width:34px;height:34px;fill:currentColor;filter:${lgf};transition:filter .25s}
 .l a:hover svg,.l a:focus-visible svg{filter:drop-shadow(0 0 6px var(--g)) drop-shadow(0 0 18px var(--g))}
 .vw{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;font-weight:500}
 .vw[hidden]{display:none}
@@ -127,11 +128,22 @@ input.pg::-moz-range-thumb{width:11px;height:11px;border:0;border-radius:50%;bac
 .ct button:hover{opacity:1;transform:scale(1.08)}
 .ct svg{width:22px;height:22px;fill:currentColor}
 .ct .pp svg{width:30px;height:30px}
-.vl{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:12px;opacity:.85}
+.vb{position:fixed;right:16px;top:16px;z-index:5;display:flex;flex-direction:row-reverse;align-items:center;height:48px;max-width:48px;overflow:hidden;border-radius:14px;color:${tx};background:${rgba(cd, 0.45)};border:1px solid ${rgba(tx, 0.16)};backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:max-width .4s cubic-bezier(.4,0,.2,1)}
+.vb:hover,.vb:focus-within{max-width:220px}
+.mu{flex:none;width:46px;height:46px;border:0;background:none;color:inherit;cursor:pointer;display:grid;place-items:center}
+.mu svg{width:24px;height:24px;fill:currentColor}
+.vb input{flex:none;width:130px;margin:0 4px 0 16px;opacity:0;transition:opacity .3s .08s}
+.vb:hover input,.vb:focus-within input{opacity:1}
+.en{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;border:0;padding:0;font:inherit;color:${tx};cursor:pointer;background:rgba(0,0,0,.5);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);transition:opacity .5s}
+.en[hidden]{display:none}.en.out{opacity:0;pointer-events:none}
+.en b{font-size:clamp(38px,9vw,64px);font-weight:600;letter-spacing:-.02em}
+.en span{opacity:.75;animation:pl 1.8s ease-in-out infinite}
 @media(prefers-reduced-motion:reduce){*{animation:none!important}}
 </style></head><body>
 ${isVid && bg ? `<video src="${bg}" autoplay muted loop playsinline></video>` : ""}
 <canvas id="cv"></canvas>
+${aud ? `<button class="en" id="en" type="button" hidden aria-label="Entrar e ligar a música"><b>${esc(name)}</b><span>Clique para entrar</span></button>
+<div class="vb"><button class="mu" id="mu" type="button" aria-label="Silenciar" title="Silenciar"></button><input type="range" class="pg" id="vo" min="0" max="100" value="50" style="--p:50%" aria-label="Volume"></div>` : ""}
 <main>
 <section class="c"><div class="av">${av ? `<img src="${esc(av)}" alt="">` : esc(name[0].toUpperCase())}</div>
 <h1 class="${nameCls.trim()}">${esc(name)}</h1>
@@ -139,7 +151,7 @@ ${tw && !o.preview ? `<a class="lv" id="lv" href="https://www.twitch.tv/${tw}" t
 ${c.desc ? `<p>${esc(String(c.desc).slice(0, 120))}</p>` : ""}${c.loc ? `<small>📍 ${esc(String(c.loc).slice(0, 40))}</small>` : ""}
 ${links ? `<div class="l${gl.l ? " gl" : ""}">${links}</div>` : ""}
 ${counter ? `<div class="vw${gl.v !== false ? " gl" : ""}" id="vw"${o.preview ? "" : " hidden"}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg><span id="vn">0</span></div>` : ""}</section>
-${aud ? `<div class="p"><div class="ph"><span class="cv"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg></span><h4>${esc(String(c.audioName || "Música").replace(/\.[^.]+$/, "").slice(0, 80))}</h4></div><div class="t"><span id="a0">0:00</span><input type="range" class="pg" id="sk" min="0" max="100" step="0.1" value="0" aria-label="Progresso"><span id="a1">0:00</span></div><div class="ct"><button class="pp" id="pb" aria-label="Tocar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button><button id="nx" aria-label="Recomeçar a música"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button></div>${c.vol === true ? `<div class="vl"><span>Volume</span><input type="range" class="pg" id="vo" min="0" max="100" value="100" style="--p:100%" aria-label="Volume"></div>` : ""}</div>` : ""}
+${aud ? `<div class="p"><div class="ph"><span class="cv"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg></span><h4>${esc(String(c.audioName || "Música").replace(/\.[^.]+$/, "").slice(0, 80))}</h4></div><div class="t"><span id="a0">0:00</span><input type="range" class="pg" id="sk" min="0" max="100" step="0.1" value="0" aria-label="Progresso"><span id="a1">0:00</span></div><div class="ct"><button class="pp" id="pb" aria-label="Tocar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button><button id="nx" aria-label="Recomeçar a música"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button></div></div>` : ""}
 </main>
 <script>
 (function(){
@@ -170,7 +182,14 @@ A.addEventListener("ended",function(){ic(false);pg(0)});
 sk.addEventListener("input",function(){sk.style.setProperty("--p",sk.value+"%");if(A.duration)A.currentTime=sk.value/100*A.duration});
 b.addEventListener("click",function(){if(A.paused){A.play().then(function(){ic(true)})}else{A.pause();ic(false)}});
 document.getElementById("nx").addEventListener("click",function(){A.currentTime=0;pg(0);A.play().then(function(){ic(true)})});
-var vo=document.getElementById("vo");if(vo)vo.addEventListener("input",function(){A.volume=vo.value/100;vo.style.setProperty("--p",vo.value+"%")});` : ""}
+var vo=document.getElementById("vo"),mu=document.getElementById("mu"),en=document.getElementById("en"),SON='<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>',SOFF='<svg viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.8 8.8 0 0 0 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a9 9 0 0 0 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4 9.91 6.09 12 8.18V4z"/></svg>';
+A.loop=true;A.volume=.5;
+function mi(){var off=A.muted||+vo.value===0;mu.innerHTML=off?SOFF:SON;mu.title=off?"Ativar som":"Silenciar";mu.setAttribute("aria-label",mu.title)}
+vo.addEventListener("input",function(){A.muted=false;A.volume=vo.value/100;vo.style.setProperty("--p",vo.value+"%");mi()});
+mu.addEventListener("click",function(){if(+vo.value===0){vo.value=50;vo.style.setProperty("--p","50%");A.volume=.5;A.muted=false}else A.muted=!A.muted;mi()});
+mi();
+en.addEventListener("click",function(){A.play().then(function(){ic(true)}).catch(function(){});en.classList.add("out");setTimeout(function(){en.hidden=true},500)});
+A.play().then(function(){ic(true)}).catch(function(){en.hidden=false;en.focus()});` : ""}
 })();
 <\/script></body></html>`;
 }
