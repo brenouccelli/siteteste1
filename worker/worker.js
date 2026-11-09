@@ -180,7 +180,11 @@ export default {
     // ----- Entrar com o Discord (cria a conta no primeiro acesso) -----
     if (req.method === "GET" && path === "/discord/start") {
       const nonce = (url.searchParams.get("n") || "").slice(0, 60);
-      if (!/^[A-Za-z0-9_-]{16,60}$/.test(nonce) || !env.DISCORD_CLIENT_ID) return go(`${env.SITE}/conta.html?erro=discord`);
+      if (!/^[A-Za-z0-9_-]{16,60}$/.test(nonce)) return go(`${env.SITE}/conta.html?erro=nonce`);
+      if (!env.DISCORD_CLIENT_ID || !env.DISCORD_CLIENT_SECRET || !env.SESSION_SECRET) {
+        console.log("discord/start: faltam variáveis", { DISCORD_CLIENT_ID: !!env.DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET: !!env.DISCORD_CLIENT_SECRET, SESSION_SECRET: !!env.SESSION_SECRET });
+        return go(`${env.SITE}/conta.html?erro=config`);
+      }
       const state = await sign(env, { n: "d", nn: nonce, exp: Date.now() + 10 * 60 * 1000 });
       const q = new URLSearchParams({
         client_id: env.DISCORD_CLIENT_ID, response_type: "code", scope: "identify",
@@ -190,9 +194,11 @@ export default {
     }
     if (req.method === "GET" && path === "/discord/callback") {
       const back = q => go(`${env.SITE}/conta.html?${q}`);
+      if (url.searchParams.get("error")) return back("erro=cancelado");
       const st = await verify(env, url.searchParams.get("state") || "");
       const code = url.searchParams.get("code");
-      if (!st || st.n !== "d" || !code) return back("erro=discord");
+      if (!st || st.n !== "d") return back("erro=state");
+      if (!code) return back("erro=discord");
       const tk = await fetch("https://discord.com/api/oauth2/token", {
         method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({
@@ -200,10 +206,16 @@ export default {
           grant_type: "authorization_code", code, redirect_uri: `${url.origin}/discord/callback`
         })
       });
-      if (!tk.ok) return back("erro=discord");
+      if (!tk.ok) {
+        const info = await tk.text().catch(() => "");
+        console.log("discord/token falhou", tk.status, info);
+        let e = "";
+        try { e = JSON.parse(info).error || ""; } catch (x) {}
+        return back(`erro=token&s=${tk.status}&e=${encodeURIComponent(String(e).slice(0, 40))}`);
+      }
       const { access_token } = await tk.json();
       const me = await fetch("https://discord.com/api/users/@me", { headers: { Authorization: `Bearer ${access_token}` } });
-      if (!me.ok) return back("erro=discord");
+      if (!me.ok) { console.log("discord/@me falhou", me.status); return back(`erro=perfil&s=${me.status}`); }
       const d = await me.json();
 
       // a conta é identificada pelo id do Discord; o endereço da página (slug) sai do nome dele
