@@ -97,7 +97,18 @@ if(h.get("t")){
   localStorage.removeItem(NN);
 }
 var q=new URLSearchParams(location.search);
-if(q.get("erro"))msg("Não foi possível entrar com o Discord. Tente de novo.");
+var ERROS={
+  config:"O servidor está sem DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET ou SESSION_SECRET.",
+  nonce:"Pedido de login inválido. Recarregue a página e tente de novo.",
+  cancelado:"Você cancelou o login no Discord.",
+  state:"O login expirou ou o SESSION_SECRET mudou. Tente de novo.",
+  token:"O Discord recusou o login (client secret ou redirect errado).",
+  perfil:"O Discord não devolveu o seu perfil."
+};
+if(q.get("erro")){
+  var e=q.get("erro"),det=[q.get("s"),q.get("e")].filter(Boolean).join(" ");
+  msg((ERROS[e]||"Não foi possível entrar com o Discord.")+(det?" ["+det+"]":"")+" Tente de novo.");
+}
 if(location.hash||location.search)history.replaceState(null,"","conta.html");
 carregar(entrou);
 })();
