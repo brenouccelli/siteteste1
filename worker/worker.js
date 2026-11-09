@@ -447,26 +447,50 @@ export default {
     files.push({ path: `${dir}/meta.json`, content: utf8b64(JSON.stringify({ o: slug })) });
     files.push({ path: `${slug}.html`, content: utf8b64(renderPage(cfg, mu, slug, v, url.origin)) });
 
-    for (const f of files) {
-      const cur = await gh(`${f.path}?ref=${branch}`);
-      const sha = cur.status === 200 ? (await cur.json()).sha : undefined;
-      const put = await gh(f.path, {
-        method: "PUT",
-        body: JSON.stringify({ message: `Página de ${slug}`, content: f.content, branch, sha })
-      });
-      if (!put.ok) {
-        const info = await put.json().catch(() => ({}));
-        return out({ erro: `O GitHub recusou a gravação (${put.status}): ${info.message || "sem detalhes"}` }, 502);
+    // grava tudo num único commit: uma só build do GitHub Pages por publicação
+    const git = (p, init = {}) => fetch(`https://api.github.com/repos/${env.REPO}/git/${p}`, {
+      ...init,
+      headers: {
+        Authorization: `Bearer ${env.GITHUB_TOKEN}`, Accept: "application/vnd.github+json",
+        "User-Agent": "painel-worker", "X-GitHub-Api-Version": "2022-11-28", ...(init.headers || {})
       }
+    });
+    const fail = async (r, what) => {
+      const info = await r.json().catch(() => ({}));
+      console.log("github falhou", what || "", r.status, info.message || "");
+      return out({ erro: `O GitHub recusou a gravação (${r.status}): ${info.message || "sem detalhes"}` }, 502);
+    };
+    const tree = [];
+    for (const f of files) {
+      const r = await git("blobs", { method: "POST", body: JSON.stringify({ content: f.content, encoding: "base64" }) });
+      if (!r.ok) return fail(r, f.path);
+      tree.push({ path: f.path, mode: "100644", type: "blob", sha: (await r.json()).sha });
     }
+    if (renaming) {
+      // a página e as mídias do endereço antigo saem no mesmo commit
+      const list = await gh(`assets/perfis/${oldSlug}?ref=${branch}`);
+      if (list.status === 200) for (const f of await list.json()) if (f.type === "file") tree.push({ path: f.path, mode: "100644", type: "blob", sha: null });
+      if ((await gh(`${oldSlug}.html?ref=${branch}`)).status === 200) tree.push({ path: `${oldSlug}.html`, mode: "100644", type: "blob", sha: null });
+    }
+    let saved = false;
+    for (let i = 0; i < 3 && !saved; i++) {
+      const ref = await git(`ref/heads/${branch}`);
+      if (!ref.ok) return fail(ref, "ref");
+      const head = (await ref.json()).object.sha;
+      const base = await git(`commits/${head}`);
+      if (!base.ok) return fail(base, "commit base");
+      const t = await git("trees", { method: "POST", body: JSON.stringify({ base_tree: (await base.json()).tree.sha, tree }) });
+      if (!t.ok) return fail(t, "tree");
+      const c = await git("commits", { method: "POST", body: JSON.stringify({ message: `Página de ${slug}`, tree: (await t.json()).sha, parents: [head] }) });
+      if (!c.ok) return fail(c, "commit");
+      const up = await git(`refs/heads/${branch}`, { method: "PATCH", body: JSON.stringify({ sha: (await c.json()).sha }) });
+      if (up.ok) saved = true;
+      else if (up.status !== 422) return fail(up, "ref update");
+    }
+    if (!saved) return out({ erro: "O GitHub estava ocupado com outra gravação. Tente salvar de novo." }, 503);
+
     let token;
     if (renaming) {
-      // apaga a página e as mídias do endereço antigo e passa a conta para o novo
-      const rm = async (path, sha) => gh(path, { method: "DELETE", body: JSON.stringify({ message: `Remove ${path}`, sha, branch }) });
-      const list = await gh(`assets/perfis/${oldSlug}?ref=${branch}`);
-      if (list.status === 200) for (const f of await list.json()) if (f.type === "file") await rm(f.path, f.sha);
-      const oldPage = await gh(`${oldSlug}.html?ref=${branch}`);
-      if (oldPage.status === 200) await rm(`${oldSlug}.html`, (await oldPage.json()).sha);
       await env.USERS.put("u:" + slug, JSON.stringify(acct));
       await env.USERS.delete("u:" + oldSlug);
       await env.USERS.put("d:" + acct.discord.id, slug);
