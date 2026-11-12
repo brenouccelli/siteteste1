@@ -410,8 +410,8 @@ function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clea
 /* estado */
 const S={user:'',title:'',slug:'',desc:'',loc:'',op:0,blur:0,sc:100,lg:35,fx:'none',nfx:'none',glow:{n:false,l:false,v:true},col:{ac:'#ffffff',tx:'#ffffff',cd:'#18181c',ic:'#ffffff'},grad:false,mono:true,nob:false,anim:false,inv:false,vol:false,dav:false,links:[]};
 try{const o=JSON.parse(localStorage.getItem(KEY)||'{}');for(const k in o){S[k]=(o[k]&&typeof o[k]==='object'&&!Array.isArray(o[k]))?Object.assign(S[k]||{},o[k]):o[k]}}catch(e){}
-const F={},U={};let ACC=null,VIEWS=0,PUB=localStorage.getItem('painel-pub')||'';
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Não foi possível salvar neste navegador.')}paint()};
+const F={},U={};let R={},READY=false,ACC=null,VIEWS=0,PUB=localStorage.getItem('painel-pub')||'';
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S));if(READY)localStorage.setItem('painel-edit',String(Date.now()))}catch(e){toast('Não foi possível salvar neste navegador.')}paint()};
 const gp=k=>k.split('.').reduce((o,p)=>o[p],S);
 const sp=(k,v)=>{const p=k.split('.'),l=p.pop();p.reduce((o,x)=>o[x],S)[l]=v};
 
@@ -422,7 +422,7 @@ const TILES=[{k:'bg',t:'Plano de fundo',a:'image/*,video/*',h:'Clique para envia
 function setFile(k,f){
   if(U[k]){URL.revokeObjectURL(U[k]);delete U[k]}
   if(f){F[k]=f;U[k]=URL.createObjectURL(f);tx('readwrite',s=>s.put(f,k)).catch(()=>toast('Arquivo grande demais para guardar. Ele vale só até fechar a aba.'))}
-  else{delete F[k];tx('readwrite',s=>s.delete(k)).catch(()=>{})}
+  else{delete F[k];delete R[k];tx('readwrite',s=>s.delete(k)).catch(()=>{})}
   tiles();save();
 }
 function tiles(){
@@ -431,9 +431,10 @@ function tiles(){
     const w=document.createElement('div');w.className='tl';
     w.innerHTML='<span>'+esc(c.t)+'</span>';
     const d=document.createElement('div');d.className='tile';d.tabIndex=0;d.setAttribute('role','button');d.setAttribute('aria-label',c.t);
-    const f=F[c.k];
+    const f=F[c.k]||R[c.k];
     d.innerHTML=(f?'<em>'+esc(f.name)+'</em><button class="rm" aria-label="Remover">×</button>':'<div class="ic">'+svg(c.i)+'<span>'+esc(c.h)+'</span></div>')+'<input type="file" accept="'+c.a+'">';
-    if(f&&f.type.indexOf('image/')===0)d.style.backgroundImage='url("'+U[c.k]+'")';
+    if(F[c.k]&&F[c.k].type.indexOf('image/')===0)d.style.backgroundImage='url("'+U[c.k]+'")';
+    else if(!F[c.k]&&R[c.k]&&/\.(png|jpe?g|webp|gif)$/i.test(R[c.k].url))d.style.backgroundImage='url("'+R[c.k].url+'")';
     const inp=d.querySelector('input');
     d.addEventListener('click',e=>{if(!e.target.closest('.rm'))inp.click()});
     d.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();inp.click()}});
@@ -509,11 +510,11 @@ function paint(){
   $('#mn').textContent=A?A.name:nm;$('#msub').textContent=ACC?'@'+ACC.user:'';
   const mi=$('#mi');mi.textContent=A&&A.avatar?'':nm[0].toUpperCase();mi.style.backgroundImage=A&&A.avatar?'url("'+A.avatar+'")':'';
   $('#raT').textContent='brenkz.com.br/'+wantSlug()+(S.slug?' (muda ao publicar)':'');
-  $('#sU').textContent=nm;$('#sL').textContent=S.links.filter(l=>http(l.u)).length;$('#sF').textContent=Object.keys(F).length;$('#sV').textContent=VIEWS;
+  $('#sU').textContent=nm;$('#sL').textContent=S.links.filter(l=>http(l.u)).length;$('#sF').textContent=new Set([...Object.keys(F),...Object.keys(R)]).size;$('#sV').textContent=VIEWS;
   $$('[data-g]').forEach(b=>b.setAttribute('aria-pressed',!!S.glow[b.dataset.g]));
   $$('[data-t]').forEach(b=>{b.setAttribute('aria-checked',!!S[b.dataset.t]);if(b.dataset.t==='dav')b.disabled=!(A&&A.avatar)});
   $('#grad').setAttribute('aria-pressed',S.grad);$('#grad').textContent=S.grad?'Desativar gradiente do perfil':'Ativar gradiente do perfil';
-  const items=[['Enviar um avatar',!!F.avatar||(S.dav&&!!(A&&A.avatar)),'avatar','pers'],['Adicionar uma descrição',!!S.desc.trim(),'desc','pers'],['Vincular conta do Discord',!!A,'discord','conta'],['Adicionar redes sociais',S.links.some(l=>http(l.u)),'links','links'],['Alcance 10 visualizações de perfil',VIEWS>=10,'views','conta']];
+  const items=[['Enviar um avatar',!!F.avatar||!!R.avatar||(S.dav&&!!(A&&A.avatar)),'avatar','pers'],['Adicionar uma descrição',!!S.desc.trim(),'desc','pers'],['Vincular conta do Discord',!!A,'discord','conta'],['Adicionar redes sociais',S.links.some(l=>http(l.u)),'links','links'],['Alcance 10 visualizações de perfil',VIEWS>=10,'views','conta']];
   const pct=items.filter(i=>i[1]).length*20;
   $('#pp').textContent=pct+'% concluído';$('#pb').style.width=pct+'%';$('#warn').hidden=pct===100;
   const c=$('#chk');c.innerHTML='';
@@ -562,11 +563,12 @@ $('#rd').addEventListener('click',()=>{{const a=new Uint8Array(24);crypto.getRan
 function cfgOf(pub){
   const A=ACC&&ACC.discord;
   return {user:shown(),title:S.title,desc:S.desc,loc:S.loc,op:S.op,blur:S.blur,sc:S.sc,lg:S.lg,fx:S.fx,nfx:S.nfx,glow:S.glow,col:S.col,grad:S.grad,mono:S.mono,nob:S.nob,anim:S.anim,inv:S.inv,vol:S.vol,
-    dav:pub?!!S.dav:(S.dav&&A?A.avatar:''),links:S.links.filter(l=>http(l.u)),audioName:F.audio?F.audio.name:''};
+    dav:pub?!!S.dav:(S.dav&&A?A.avatar:''),links:S.links.filter(l=>http(l.u)),audioName:F.audio?F.audio.name:(R.audio?R.audio.name:'')};
 }
 $('#prev').addEventListener('click',()=>{
-  const m={bg:U.bg,audio:U.audio,avatar:U.avatar,cursor:U.cursor};
-  $('#pfi').srcdoc=renderPage(cfgOf(false),m,ACC?ACC.user:'perfil','p','',{preview:true,video:!!(F.bg&&F.bg.type.indexOf('video/')===0)});
+  const mm=k=>U[k]||(R[k]?R[k].url:''),m={bg:mm('bg'),audio:mm('audio'),avatar:mm('avatar'),cursor:mm('cursor')};
+  const vid=F.bg?F.bg.type.indexOf('video/')===0:!!(R.bg&&/\.(mp4|webm)$/i.test(R.bg.url));
+  $('#pfi').srcdoc=renderPage(cfgOf(false),m,ACC?ACC.user:'perfil','p','',{preview:true,video:vid});
   $('#pf').hidden=false;document.body.style.overflow='hidden';$('#pfx').focus();
 });
 function closePrev(){$('#pf').hidden=true;$('#pfi').srcdoc='';document.body.style.overflow=''}
@@ -575,7 +577,7 @@ addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#pf').hidden)closePrev()
 
 const b64=f=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(f)});
 /* salvar: grava tudo no GitHub num único commit e continua no painel */
-const sig=()=>JSON.stringify([cfgOf(true),wantSlug(),Object.keys(F).sort().map(k=>[k,F[k].name,F[k].size,F[k].lastModified])]);
+const sig=()=>JSON.stringify([cfgOf(true),wantSlug(),Object.keys(F).sort().map(k=>[k,F[k].name,F[k].size,F[k].lastModified]),Object.keys(R).sort().map(k=>[k,R[k].url])]);
 const dirty=()=>{try{return sig()!==localStorage.getItem('painel-pubsig')}catch(e){return true}};
 function updSave(){
   const b=$('#save');if(!b||b.dataset.busy)return;
@@ -591,12 +593,14 @@ $('#save').addEventListener('click',async()=>{
     const media={};let total=0;
     for(const k in F){total+=F[k].size;media[k]={name:F[k].name,type:F[k].type,data:await b64(F[k])}}
     if(total>20*1024*1024)throw new Error('Os arquivos passam de 20 MB no total.');
-    const r=await fetch(API+'/publish',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+TK},body:JSON.stringify({cfg:cfgOf(true),media,slug:wantSlug()})});
+    const r=await fetch(API+'/publish',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+TK},body:JSON.stringify({cfg:cfgOf(true),media,slug:wantSlug(),keep:Object.fromEntries(['bg','audio','avatar','cursor'].map(k=>[k,!F[k]&&!!R[k]]))})});
     const j=await r.json().catch(()=>({}));
     if(!r.ok)throw new Error(j.erro||'Falha ao salvar.');
     PUB=j.url;localStorage.setItem('painel-pub',PUB);
     if(j.token){localStorage.setItem('conta-token',j.token);ACC.user=wantSlug();S.slug='';save()}
-    try{localStorage.setItem('painel-pubsig',j.token?sig():s0)}catch(e){}
+    const changed=sig()!==s0;
+    if(j.page){R=fromPage(j.page);Object.keys(F).forEach(k=>{if(U[k])URL.revokeObjectURL(U[k]);delete F[k];delete U[k];tx('readwrite',st=>st.delete(k)).catch(()=>{})});tiles()}
+    try{if(!changed)localStorage.setItem('painel-pubsig',sig())}catch(e){}
     toast('Alterações salvas! A página atualiza em 1 a 2 minutos.');
     (async()=>{for(let i=0;i<45;i++){
       const ok=await fetch(j.url+'?t='+Date.now(),{cache:'no-store'}).then(x=>x.ok?x.text():'').then(t=>t.includes(j.v)).catch(()=>false);
@@ -622,6 +626,18 @@ $('#rtx').addEventListener('click',()=>twApi('/twitch/unlink').then(()=>{ACC.twi
  if(tq){history.replaceState(null,'',location.pathname);
   setTimeout(()=>toast(({ok:'Twitch conectada! Clique em “Salvar alterações” para publicar o aviso de AO VIVO.',cancelado:'Você cancelou a conexão com a Twitch.',state:'A conexão expirou. Tente de novo.',token:'A Twitch recusou a conexão (client secret ou redirect errado).',perfil:'A Twitch não devolveu o seu perfil.',conta:'Conta não encontrada. Entre de novo.'})[tq]||'Não foi possível conectar a Twitch.'),400)}}
 
+/* página publicada guardada na conta */
+function fromPage(p){const r={};const md=p.media||{},nm=p.names||{};for(const k in md)r[k]={url:'/'+md[k],name:nm[k]||md[k].split('/').pop()};return r}
+function adopt(c){
+  ['user','title','desc','loc','op','blur','sc','lg','fx','nfx','mono','nob','anim','dav'].forEach(k=>{if(c[k]!==undefined)S[k]=c[k]});
+  if(c.glow)S.glow=Object.assign({},S.glow,c.glow);if(c.col)S.col=Object.assign({},S.col,c.col);
+  if(Array.isArray(c.links))S.links=c.links.filter(l=>l&&http(l.u)).map(l=>({p:String(l.p),u:String(l.u)}));
+  S.slug='';
+  $$('[data-k]').forEach(el=>{el.value=gp(el.dataset.k)});
+  $$('#cols .f').forEach((w,i)=>{const v=S.col[COLORS[i][0]];w.querySelector('input[type=color]').value=w.querySelector('.hx').value=v;w.querySelector('label').style.background=v});
+  links();
+}
+
 /* conta: exige login e Discord conectado */
 const root=document.documentElement;root.style.visibility='hidden';
 const bye=()=>{localStorage.removeItem('conta-token');location.replace('conta')};
@@ -629,8 +645,15 @@ if(!TK)location.replace('conta');
 else fetch(API+'/me',{headers:{Authorization:'Bearer '+TK}}).then(r=>r.ok?r.json():Promise.reject()).then(me=>{
   if(!me.discord)return location.replace('conta');
   ACC=me;root.style.visibility='';twPaint();
+  if(me.page){
+    R=fromPage(me.page);
+    const et=+(localStorage.getItem('painel-edit')||0);
+    if(!et||et<=me.page.t){adopt(me.page.cfg||{});var adopted=true}
+  }
   if(!S.user)S.user=me.user;
-  save();
+  save();tiles();
+  if(typeof adopted!=='undefined'&&!Object.keys(F).length){try{localStorage.setItem('painel-pubsig',sig())}catch(e){}}
+  READY=true;paint();
   fetch(API+'/view',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({p:me.user,inc:false})})
     .then(r=>r.ok?r.json():{n:0}).then(j=>{VIEWS=j.n||0;paint()}).catch(()=>{});
 }).catch(bye);

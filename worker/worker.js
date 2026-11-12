@@ -277,7 +277,7 @@ export default {
       const s = await session();
       const rec = s && await getUser(s.u);
       if (!rec) return out({ erro: "Sessão inválida." }, 401);
-      return out({ user: s.u, discord: rec.discord || null, twitch: rec.twitch || null });
+      return out({ user: s.u, discord: rec.discord || null, twitch: rec.twitch || null, page: rec.page || null });
     }
 
     if (req.method === "GET" && path === "/live") {
@@ -352,12 +352,28 @@ export default {
       return out({ erro: "Este nome já está em uso." }, 409);
     }
 
-    const files = [], m = {}, mu = {};
+    // arquivos que já estão publicados na pasta atual da página (para manter, mover ou apagar)
+    const curDir = `assets/perfis/${oldSlug}`, cur = {};
+    const curList = await gh(`${curDir}?ref=${branch}`);
+    if (curList.status === 200) for (const f of await curList.json()) if (f.type === "file") cur[f.path] = f.sha;
+    const page0 = acct.page || {}, oldMedia = page0.media || {}, oldNames = page0.names || {};
+    const findOld = k => oldMedia[k] && cur[oldMedia[k]] ? oldMedia[k] : Object.keys(cur).find(p => p.startsWith(`${curDir}/${k}.`)) || "";
+    // um painel antigo (sem "keep") não sabe dos arquivos já publicados: nesse caso, mantém todos
+    const keep = body.keep && typeof body.keep === "object" ? body.keep : { bg: true, audio: true, avatar: true, cursor: true };
+    const files = [], m = {}, mu = {}, names = {}, reuse = [], drop = [];
     let total = 0;
     const media = body.media && typeof body.media === "object" ? body.media : {};
     for (const k of Object.keys(ALLOW)) {
-      const f = media[k];
-      if (!f) continue;
+      const f = media[k], old = findOld(k);
+      if (!f) {
+        if (old && keep[k] === true) {
+          const name = old.slice(old.lastIndexOf("/") + 1);
+          m[k] = name; mu[k] = `${dir}/${name}`; names[k] = String(oldNames[k] || keep[k + "Name"] || name).slice(0, 120);
+          if (renaming) reuse.push({ path: mu[k], sha: cur[old] });
+          if (k === "audio") cfg.audioName = String(cfg.audioName || names[k]);
+        } else if (old && !renaming) drop.push(old);
+        continue;
+      }
       const ext = EXT[f.type];
       if (!ext || !ALLOW[k].includes(ext)) return out({ erro: `Tipo de arquivo não permitido em ${k}.` }, 400);
       const data = String(f.data || "");
@@ -367,6 +383,8 @@ export default {
       m[k] = `${k}.${ext}`;
       mu[k] = `assets/perfis/${slug}/${m[k]}`;
       files.push({ path: `${dir}/${m[k]}`, content: data });
+      names[k] = String(f.name || m[k]).slice(0, 120);
+      if (old && old !== mu[k] && !renaming) drop.push(old);
       if (k === "audio") cfg.audioName = String(f.name || "Música");
     }
 
@@ -393,10 +411,11 @@ export default {
       if (!r.ok) return fail(r, f.path);
       tree.push({ path: f.path, mode: "100644", type: "blob", sha: (await r.json()).sha });
     }
+    for (const r of reuse) tree.push({ path: r.path, mode: "100644", type: "blob", sha: r.sha });
+    for (const p of drop) tree.push({ path: p, mode: "100644", type: "blob", sha: null });
     if (renaming) {
       // a página e as mídias do endereço antigo saem no mesmo commit
-      const list = await gh(`assets/perfis/${oldSlug}?ref=${branch}`);
-      if (list.status === 200) for (const f of await list.json()) if (f.type === "file") tree.push({ path: f.path, mode: "100644", type: "blob", sha: null });
+      for (const p of Object.keys(cur)) tree.push({ path: p, mode: "100644", type: "blob", sha: null });
       if ((await gh(`${oldSlug}.html?ref=${branch}`)).status === 200) tree.push({ path: `${oldSlug}.html`, mode: "100644", type: "blob", sha: null });
     }
     let saved = false;
@@ -416,6 +435,8 @@ export default {
     }
     if (!saved) return out({ erro: "O GitHub estava ocupado com outra gravação. Tente salvar de novo." }, 503);
 
+    const ccfg = body.cfg && typeof body.cfg === "object" ? body.cfg : {};
+    acct.page = { cfg: { ...ccfg, dav: ccfg.dav === true }, media: mu, names, t: Date.now() };
     let token;
     if (renaming) {
       await env.USERS.put("u:" + slug, JSON.stringify(acct));
@@ -425,11 +446,11 @@ export default {
       if (views) { await env.USERS.put("v:" + slug, views); await env.USERS.delete("v:" + oldSlug); }
       await env.USERS.delete("p:" + oldSlug);
       token = await sign(env, { n: "s", u: slug, exp: Date.now() + 30 * 24 * 3600 * 1000 });
-    }
+    } else await env.USERS.put("u:" + slug, JSON.stringify(acct));
     await env.USERS.put("p:" + slug, JSON.stringify({
       n: String(cfg.user || slug).slice(0, 24), d: String(cfg.desc || "").slice(0, 80),
       a: cfg.dav || (m.avatar ? `assets/perfis/${slug}/${m.avatar}` : ""), t: Date.now()
     }));
-    return out({ url: `${env.SITE}/${slug}`, v, token });
+    return out({ url: `${env.SITE}/${slug}`, v, token, page: acct.page });
   }
 };
